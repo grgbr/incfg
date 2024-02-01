@@ -1,0 +1,50 @@
+################################################################################
+# SPDX-License-Identifier: LGPL-3.0-only
+#
+# This file is part of InCfg.
+# Copyright (C) 2024 Grégor Boirie <gregor.boirie@free.fr>
+################################################################################
+
+config INCFG_ASSERT_API
+	bool "API assertion"
+	default n
+	help
+	  Build incfg library with high-level API assertions enabled to ensure
+	  that API functions exposed by incfg will perform full verification of
+	  arguments consistency.
+
+config INCFG_ASSERT_INTERN
+	bool "Internal assertion"
+	select INCFG_ASSERT_API
+	default n
+	help
+	  Build incfg library with internal assertions enabled to check for
+	  internal incfg behavioral consistency.
+
+config INCFG_ENABLED
+	bool
+	default n
+
+config INCFG_IPV4
+	bool "IPv4 support"
+	default y
+	select INCFG_ENABLED
+	help
+	  Build incfg library with support for IPv4.
+
+config INCFG_UTEST
+	bool "Unit tests"
+	depends on INCFG_ENABLED
+	default n
+	help
+	  Build InCfg library unit testsuite.
+
+config INCFG_VALGRIND
+	bool "Valgrind support"
+	depends on INCFG_UTEST
+	default n
+	help
+	  Build InCfg library unit test suite with Valgrind support enabled.
+	  For debugging purposes only: do not use in production.
+
+# ex: ft=kconfig:
