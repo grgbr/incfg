@@ -22,14 +22,18 @@
 #include <incfg/cdefs.h>
 #include <netinet/in.h>
 #include <dpack/bin.h>
+#include <stdlib.h>
 
 union incfg_ipv4_addr {
 	struct in_addr inet;
-	uint8_t        bytes[4];
+	uint8_t        bytes[sizeof(in_addr_t)];
 };
 
-#define INCFG_IPV4_ADDR_INIT(_a, _b, _c, _d) \
-	{ .bytes = { _a, _b, _c, _d } }
+#define INCFG_IPV4_ADDR_INIT_SADDR(_saddr) \
+	{ .inet.s_addr = htonl(_saddr) }
+
+#define INCFG_IPV4_ADDR_INIT_INET(_inet) \
+	{ .inet = _inet }
 
 #define INCFG_IPV4_ADDR_STRSZ \
 	INET_ADDRSTRLEN
@@ -43,19 +47,24 @@ union incfg_ipv4_addr {
 extern int
 incfg_ipv4_addr_check_str(const char * __restrict string) __incfg_export;
 
+extern const char *
+incfg_ipv4_addr_to_str(const union incfg_ipv4_addr * __restrict addr,
+                       char * __restrict                        string)
+	__incfg_export;
+
+extern void
+incfg_ipv4_addr_setup_saddr(union incfg_ipv4_addr * __restrict addr,
+                            in_addr_t                          saddr)
+	__incfg_export;
+
+extern void
+incfg_ipv4_addr_setup_inet(union incfg_ipv4_addr * __restrict addr,
+                           const struct in_addr * __restrict  inet)
+	__incfg_export;
+
 extern int
-incfg_ipv4_addr_from_str(union incfg_ipv4_addr * __restrict addr,
-                         const char * __restrict            string)
-	__incfg_export;
-
-extern void
-incfg_ipv4_addr_to_str(union incfg_ipv4_addr * __restrict addr,
-                       char * __restrict                  string)
-	__incfg_export;
-
-extern void
-incfg_ipv4_addr_from_inet(union incfg_ipv4_addr * __restrict addr,
-                          const struct in_addr * __restrict  inet)
+incfg_ipv4_addr_setup_str(union incfg_ipv4_addr * __restrict addr,
+                          const char * __restrict            string)
 	__incfg_export;
 
 extern int
@@ -68,10 +77,34 @@ incfg_ipv4_addr_unpack(struct dpack_decoder *             decoder,
                        union incfg_ipv4_addr * __restrict addr)
 	__incfg_export;
 
-extern union incfg_ipv4_addr *
-incfg_ipv4_addr_alloc(void) __incfg_export;
+static inline union incfg_ipv4_addr *
+incfg_ipv4_addr_alloc(void)
+{
+	return malloc(sizeof(union incfg_ipv4_addr));
+}
 
-extern void
-incfg_ipv4_addr_free(union incfg_ipv4_addr * addr) __incfg_export;
+static inline void
+incfg_ipv4_addr_free(union incfg_ipv4_addr * addr)
+{
+	free(addr);
+}
+
+static inline void
+incfg_ipv4_addr_destroy(union incfg_ipv4_addr * addr)
+{
+	incfg_ipv4_addr_free(addr);
+}
+
+extern union incfg_ipv4_addr *
+incfg_ipv4_addr_create_saddr(in_addr_t saddr)
+	__incfg_export;
+
+extern union incfg_ipv4_addr *
+incfg_ipv4_addr_create_inet(const struct in_addr * __restrict inet)
+	__incfg_export;
+
+extern union incfg_ipv4_addr *
+incfg_ipv4_addr_create_str(const char * __restrict string)
+	__incfg_export;
 
 #endif /* _INCFG_IPV4_H */
