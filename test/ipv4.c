@@ -504,18 +504,19 @@ CUTE_TEST(incfgut_ipv4_addr_unpack)
 CUTE_TEST(incfgut_ipv4_addr_unpack_short)
 {
 	struct dpack_decoder        dec;
-	const char                  buff = '\xc4';
+	const char                  buff[] = "\xc4\x04";
 	union incfg_ipv4_addr       addr;
-	union incfg_ipv4_addr       ref;
 
-	memset(&addr, 0xff, sizeof(addr));
-	memset(&ref, 0xff, sizeof(ref));
-
-	dpack_decoder_init_buffer(&dec, &buff, sizeof(buff));
+	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
 	cute_check_sint(incfg_ipv4_addr_unpack(&dec, &addr), equal, -EPROTO);
 	cute_check_uint(dpack_decoder_data_left(&dec), equal, 0);
-	cute_check_mem(&addr, equal, &ref, sizeof(ref));
+
+	/*
+	 * No need to check `addr' content since it may have been modified by
+	 * mpack library and is left in an undefined state. See:
+	 * mpack_read_bytes -> mpack_read_native -> mpack_read_native_straddle
+	 */
 
 	dpack_decoder_fini(&dec);
 }

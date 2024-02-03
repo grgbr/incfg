@@ -104,9 +104,9 @@ incfg_ipv4_addr_unpack(struct dpack_decoder *             decoder,
 	incfg_assert_api(decoder);
 	incfg_assert_api(addr);
 
-	return dpack_decode_bincpy(decoder,
-	                           sizeof(addr->bytes),
-	                           (char *)addr->bytes);
+	return dpack_decode_bincpy_equ(decoder,
+	                               sizeof(addr->bytes),
+	                               (char *)addr->bytes);
 }
 
 union incfg_ipv4_addr *
