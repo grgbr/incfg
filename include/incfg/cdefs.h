@@ -44,4 +44,4 @@
 #endif /* defined(CONFIG_INCFG_ASSERT_API) || \
           defined(CONFIG_INCFG_ASSERT_INTERN) */
 
-#endif /* _DPACK_CDEFS_H */
+#endif /* _INCFG_CDEFS_H */

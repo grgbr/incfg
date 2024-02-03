@@ -48,8 +48,8 @@ extern int
 incfg_ipv4_addr_check_str(const char * __restrict string) __incfg_export;
 
 extern const char *
-incfg_ipv4_addr_to_str(const union incfg_ipv4_addr * __restrict addr,
-                       char * __restrict                        string)
+incfg_ipv4_addr_str(const union incfg_ipv4_addr * __restrict addr,
+                    char * __restrict                        string)
 	__incfg_export;
 
 extern void

@@ -17,7 +17,9 @@ endif # ($(realpath $(kconf_config)),)
 
 HEADERDIR := $(CURDIR)/include
 headers   := $(PACKAGE)/cdefs.h
+headers   := $(PACKAGE)/common.h
 headers   += $(call kconf_enabled,INCFG_IPV4,$(PACKAGE)/ipv4.h)
+headers   += $(call kconf_enabled,INCFG_IPV4,$(PACKAGE)/dns.h)
 
 subdirs   := src
 
@@ -35,7 +37,7 @@ includedir=$${prefix}/include
 Name: libincfg
 Description: incfg library
 Version: %%PKG_VERSION%%
-Requires.private: libstroll
+Requires.private: libdpack libstroll libelog libpcre2-8
 Cflags: -I$${includedir}
 Libs: -L$${libdir} -lincfg
 endef

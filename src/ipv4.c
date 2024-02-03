@@ -4,9 +4,22 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
+/*
+ * Use Glibc's inet_pton() primitive here as it is about 15 times as fast as a
+ * Perl regular expression used to parse IPv4 addresses such as :
+ *
+ * #define INCFG_IPV4_ADDR_PATTERN \
+ * 	"(?:(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}" \
+ * 	"(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])"
+ *
+ * The regex above is a slightly modified version of `ipv4-address' Perl regular
+ * expression defined into rfc 6991 (Common YANG Data Types) with capture groups
+ * disabled and no support for IPv4 address zone matching...
+ */
 int
 incfg_ipv4_addr_check_str(const char * __restrict string)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(string);
 
 	struct in_addr addr;
@@ -19,8 +32,8 @@ incfg_ipv4_addr_check_str(const char * __restrict string)
 }
 
 const char *
-incfg_ipv4_addr_to_str(const union incfg_ipv4_addr * __restrict addr,
-                       char * __restrict                        string)
+incfg_ipv4_addr_str(const union incfg_ipv4_addr * __restrict addr,
+                    char * __restrict                        string)
 {
 	incfg_assert_api(addr);
 	incfg_assert_api(string);
@@ -37,6 +50,7 @@ void
 incfg_ipv4_addr_setup_saddr(union incfg_ipv4_addr * __restrict addr,
                             in_addr_t                          saddr)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 
 	addr->inet.s_addr = htonl(saddr);
@@ -46,6 +60,7 @@ void
 incfg_ipv4_addr_setup_inet(union incfg_ipv4_addr * __restrict addr,
                            const struct in_addr * __restrict  inet)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(inet);
 
@@ -56,6 +71,7 @@ int
 incfg_ipv4_addr_setup_str(union incfg_ipv4_addr * __restrict addr,
                           const char * __restrict            string)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(string);
 
@@ -71,6 +87,7 @@ int
 incfg_ipv4_addr_pack(struct dpack_encoder *                   encoder,
                      const union incfg_ipv4_addr * __restrict addr)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(encoder);
 	incfg_assert_api(addr);
 	incfg_assert_api(dpack_encoder_space_left(encoder) >=
@@ -85,6 +102,7 @@ ssize_t
 incfg_ipv4_addr_unpack(struct dpack_decoder *             decoder,
                        union incfg_ipv4_addr * __restrict addr)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(decoder);
 	incfg_assert_api(addr);
 	incfg_assert_api(dpack_decoder_data_left(decoder) >=
@@ -98,6 +116,7 @@ incfg_ipv4_addr_unpack(struct dpack_decoder *             decoder,
 union incfg_ipv4_addr *
 incfg_ipv4_addr_create_saddr(in_addr_t saddr)
 {
+	incfg_assert_api(incfg_logger);
 	union incfg_ipv4_addr * addr;
 
 	addr = incfg_ipv4_addr_alloc();
@@ -112,6 +131,7 @@ incfg_ipv4_addr_create_saddr(in_addr_t saddr)
 union incfg_ipv4_addr *
 incfg_ipv4_addr_create_inet(const struct in_addr * __restrict inet)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(inet);
 
 	union incfg_ipv4_addr * addr;
@@ -128,6 +148,9 @@ incfg_ipv4_addr_create_inet(const struct in_addr * __restrict inet)
 union incfg_ipv4_addr *
 incfg_ipv4_addr_create_str(const char * __restrict string)
 {
+	incfg_assert_api(incfg_logger);
+	incfg_assert_api(string);
+
 	union incfg_ipv4_addr * addr;
 	int                     err;
 

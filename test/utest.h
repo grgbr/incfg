@@ -18,4 +18,10 @@ extern void incfgut_expect_free(const void * data, size_t size);
 extern void * malloc(size_t size);
 extern int    incfgut_expect_malloc(void);
 
+extern void
+incfgut_setup(void);
+
+extern void
+incfgut_teardown(void);
+
 #endif /* _INCFG_UTEST_H */

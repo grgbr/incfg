@@ -6,7 +6,9 @@
  ******************************************************************************/
 
 #include "utest.h"
+#include "incfg/common.h"
 #include "incfg/ipv4.h"
+#include <elog/elog.h>
 #include <cute/cute.h>
 #include <cute/check.h>
 #include <cute/expect.h>
@@ -264,12 +266,31 @@ incfgut_expect_malloc(void)
 	return 0;
 }
 
+void
+incfgut_setup(void)
+{
+	static struct elog_stdio            log;
+	static const struct elog_stdio_conf conf = {
+		.super.severity = ELOG_INFO_SEVERITY,
+		.format         = ELOG_TAG_FMT | ELOG_SEVERITY_FMT
+	};
+
+	elog_init_stdio(&log, &conf);
+	cute_check_sint(incfg_init((struct elog *)&log), equal, 0);
+}
+
+void
+incfgut_teardown(void)
+{
+	incfg_fini();
+}
+
 #if defined(CONFIG_INCFG_IPV4)
 extern CUTE_SUITE_DECL(incfgut_ipv4_suite);
 #endif
 
 CUTE_GROUP(incfgut_group) = {
-#if defined(CONFIG_DPACK_ARRAY)
+#if defined(CONFIG_INCFG_IPV4)
 	CUTE_REF(incfgut_ipv4_suite),
 #endif
 };

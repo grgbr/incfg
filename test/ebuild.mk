@@ -27,7 +27,7 @@ test-ldflags := $(test-cflags) \
                 $(EXTRA_LDFLAGS) \
                 -Wl,-z,start-stop-visibility=hidden \
                 -Wl,-whole-archive $(BUILDDIR)/builtin.a -Wl,-no-whole-archive \
-                -lincfg
+                -lincfg -lelog
 
 ifneq ($(filter y,$(CONFIG_INCFG_ASSERT_API) $(CONFIG_INCFG_ASSERT_INTERN)),)
 test-cflags         := $(filter-out -DNDEBUG,$(test-cflags))

@@ -32,6 +32,21 @@ config INCFG_IPV4
 	help
 	  Build incfg library with support for IPv4.
 
+config INCFG_DNS
+	bool "Domain name support"
+	default y
+	select INCFG_ENABLED
+	help
+	  Build incfg library with support for Domain names.
+
+config INCFG_DEBUG
+	bool "Debug"
+	select INCFG_ASSERT_API
+	select INCFG_ASSERT_INTERN
+	default n
+	help
+	  Build incfg library with internal debugging support enabled.
+
 config INCFG_UTEST
 	bool "Unit tests"
 	depends on INCFG_ENABLED
