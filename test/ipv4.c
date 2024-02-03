@@ -7,6 +7,7 @@
 
 #include "utest.h"
 #include "incfg/ipv4.h"
+#include <dpack/codec.h>
 #include <cute/cute.h>
 #include <cute/check.h>
 #include <cute/expect.h>
@@ -397,6 +398,128 @@ CUTE_TEST(incfgut_ipv4_addr_check_str)
 	                -EINVAL);
 }
 
+#if  defined(CONFIG_INCFG_ASSERT_API)
+
+CUTE_TEST(incfgut_ipv4_addr_pack_assert)
+{
+	struct dpack_encoder        enc;
+	const union incfg_ipv4_addr addr;
+
+	cute_expect_assertion(incfg_ipv4_addr_pack(&enc, NULL));
+	cute_expect_assertion(incfg_ipv4_addr_pack(NULL, &addr));
+}
+
+#else  /* !defined(CONFIG_INCFG_ASSERT_API) */
+
+CUTE_TEST(incfgut_ipv4_addr_pack_assert)
+{
+	cute_skip("assertion unsupported");
+}
+
+#endif /* defined(CONFIG_INCFG_ASSERT_API) */
+
+CUTE_TEST(incfgut_ipv4_addr_pack)
+{
+	struct dpack_encoder        enc;
+	char                        buff[INCFG_IPV4_ADDR_PACKSZ + 2];
+	const union incfg_ipv4_addr addr =
+		INCFG_IPV4_ADDR_INIT_SADDR(INADDR_LOOPBACK);
+	const uint8_t               ref[] = "\xc4\x04\x7f\x00\x00\x01\xff\xff";
+
+	cute_check_uint(INCFG_IPV4_ADDR_PACKSZ, equal, 6);
+
+	memset(buff, 0xff, sizeof(buff));
+	dpack_encoder_init_buffer(&enc, buff, sizeof(buff));
+
+	cute_check_sint(incfg_ipv4_addr_pack(&enc, &addr), equal, 0);
+	cute_check_uint(dpack_encoder_space_used(&enc),
+	                equal,
+	                INCFG_IPV4_ADDR_PACKSZ);
+	cute_check_uint(dpack_encoder_space_left(&enc),
+	                equal,
+	                sizeof(buff) - INCFG_IPV4_ADDR_PACKSZ);
+	cute_check_mem(buff, equal, ref, sizeof(ref) - 1);
+
+	dpack_encoder_fini(&enc, DPACK_DONE);
+}
+
+CUTE_TEST(incfgut_ipv4_addr_pack_short)
+{
+	struct dpack_encoder        enc;
+	char                        buff = '\xff';
+	char                        ref = '\xff';
+	const union incfg_ipv4_addr addr =
+		INCFG_IPV4_ADDR_INIT_SADDR(INADDR_LOOPBACK);
+
+	dpack_encoder_init_buffer(&enc, &buff, sizeof(buff));
+
+	cute_check_sint(incfg_ipv4_addr_pack(&enc, &addr), equal, -EMSGSIZE);
+	cute_check_uint(dpack_encoder_space_used(&enc), equal, 0);
+	cute_check_uint(dpack_encoder_space_left(&enc), equal, sizeof(buff));
+	cute_check_mem((void *)&buff, equal, (void *)&ref, sizeof(ref));
+
+	dpack_encoder_fini(&enc, DPACK_ABORT);
+}
+
+#if  defined(CONFIG_INCFG_ASSERT_API)
+
+CUTE_TEST(incfgut_ipv4_addr_unpack_assert)
+{
+	struct dpack_decoder  dec;
+	union incfg_ipv4_addr addr;
+
+	cute_expect_assertion(incfg_ipv4_addr_unpack(&dec, NULL));
+	cute_expect_assertion(incfg_ipv4_addr_unpack(NULL, &addr));
+}
+
+#else  /* !defined(CONFIG_INCFG_ASSERT_API) */
+
+CUTE_TEST(incfgut_ipv4_addr_unpack_assert)
+{
+	cute_skip("assertion unsupported");
+}
+
+#endif /* defined(CONFIG_INCFG_ASSERT_API) */
+
+CUTE_TEST(incfgut_ipv4_addr_unpack)
+{
+	struct dpack_decoder        dec;
+	const char                  buff[] = "\xc4\x04\x7f\x00\x00\x01";
+	union incfg_ipv4_addr       addr;
+	const union incfg_ipv4_addr ref =
+		INCFG_IPV4_ADDR_INIT_SADDR(INADDR_LOOPBACK);
+
+	memset(&addr, 0xff, sizeof(addr));
+	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
+
+	cute_check_sint(incfg_ipv4_addr_unpack(&dec, &addr),
+	                equal,
+	                (ssize_t)sizeof(addr));
+	cute_check_uint(dpack_decoder_data_left(&dec), equal, 0);
+	cute_check_mem(&addr, equal, &ref, sizeof(ref));
+
+	dpack_decoder_fini(&dec);
+}
+
+CUTE_TEST(incfgut_ipv4_addr_unpack_short)
+{
+	struct dpack_decoder        dec;
+	const char                  buff = '\xc4';
+	union incfg_ipv4_addr       addr;
+	union incfg_ipv4_addr       ref;
+
+	memset(&addr, 0xff, sizeof(addr));
+	memset(&ref, 0xff, sizeof(ref));
+
+	dpack_decoder_init_buffer(&dec, &buff, sizeof(buff));
+
+	cute_check_sint(incfg_ipv4_addr_unpack(&dec, &addr), equal, -EPROTO);
+	cute_check_uint(dpack_decoder_data_left(&dec), equal, 0);
+	cute_check_mem(&addr, equal, &ref, sizeof(ref));
+
+	dpack_decoder_fini(&dec);
+}
+
 CUTE_GROUP(incfgut_ipv4_group) = {
 	CUTE_REF(incfgut_ipv4_addr_init_saddr),
 	CUTE_REF(incfgut_ipv4_addr_setup_saddr_assert),
@@ -413,7 +536,13 @@ CUTE_GROUP(incfgut_ipv4_group) = {
 	CUTE_REF(incfgut_ipv4_addr_str_assert),
 	CUTE_REF(incfgut_ipv4_addr_str),
 	CUTE_REF(incfgut_ipv4_addr_check_str_assert),
-	CUTE_REF(incfgut_ipv4_addr_check_str)
+	CUTE_REF(incfgut_ipv4_addr_check_str),
+	CUTE_REF(incfgut_ipv4_addr_pack_assert),
+	CUTE_REF(incfgut_ipv4_addr_pack),
+	CUTE_REF(incfgut_ipv4_addr_pack_short),
+	CUTE_REF(incfgut_ipv4_addr_unpack_assert),
+	CUTE_REF(incfgut_ipv4_addr_unpack),
+	CUTE_REF(incfgut_ipv4_addr_unpack_short)
 };
 
 CUTE_SUITE_EXTERN(incfgut_ipv4_suite,

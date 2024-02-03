@@ -90,8 +90,6 @@ incfg_ipv4_addr_pack(struct dpack_encoder *                   encoder,
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(encoder);
 	incfg_assert_api(addr);
-	incfg_assert_api(dpack_encoder_space_left(encoder) >=
-	                 INCFG_IPV4_ADDR_PACKSZ);
 
 	return dpack_encode_bin(encoder,
 	                        (const char *)addr->bytes,
@@ -105,8 +103,6 @@ incfg_ipv4_addr_unpack(struct dpack_decoder *             decoder,
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(decoder);
 	incfg_assert_api(addr);
-	incfg_assert_api(dpack_decoder_data_left(decoder) >=
-	                 INCFG_IPV4_ADDR_PACKSZ);
 
 	return dpack_decode_bincpy(decoder,
 	                           sizeof(addr->bytes),

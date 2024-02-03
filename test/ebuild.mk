@@ -43,6 +43,6 @@ checkbins           := incfg-utest
 incfg-utest-objs    += $(call kconf_enabled,INCFG_IPV4,ipv4.o)
 incfg-utest-cflags  := $(test-cflags)
 incfg-utest-ldflags := $(test-ldflags)
-incfg-utest-pkgconf := libcute
+incfg-utest-pkgconf := libdpack libcute
 
 # ex: filetype=make :
