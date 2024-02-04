@@ -44,6 +44,12 @@ union incfg_ipv4_addr {
 #define INCFG_IPV4_ADDR_PACKSZ \
 	DPACK_BIN_SIZE(sizeof_member(union incfg_ipv4_addr, bytes))
 
+static inline const struct in_addr *
+incfg_ipv4_addr_inet(const union incfg_ipv4_addr * addr)
+{
+	return &addr->inet;
+}
+
 extern int
 incfg_ipv4_addr_check_nstr(const char * __restrict string, size_t length)
 	__incfg_export;

@@ -289,10 +289,17 @@ incfgut_teardown(void)
 #if defined(CONFIG_INCFG_IPV4)
 extern CUTE_SUITE_DECL(incfgut_ipv4_suite);
 #endif
+#if defined(CONFIG_INCFG_DNS)
+extern CUTE_SUITE_DECL(incfgut_dns_suite);
+#endif
+
 
 CUTE_GROUP(incfgut_group) = {
 #if defined(CONFIG_INCFG_IPV4)
 	CUTE_REF(incfgut_ipv4_suite),
+#endif
+#if defined(CONFIG_INCFG_DNS)
+	CUTE_REF(incfgut_dns_suite),
 #endif
 };
 

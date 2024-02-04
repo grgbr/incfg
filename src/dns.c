@@ -16,10 +16,12 @@ incfg_dns_check_nstr(const char * __restrict string, size_t length)
 	incfg_assert_api(string);
 
 	if (length > INCFG_DNS_STRLEN_MAX)
-		return -ENAMETOOLONG;
+		return -EINVAL;
 
-	return incfg_regex_nmatch(&incfg_dns_regex, string, length) ? -EINVAL :
-	                                                              0;
+	if (incfg_regex_nmatch(&incfg_dns_regex, string, length))
+		return -EINVAL;
+
+	return 0;
 }
 
 int

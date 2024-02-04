@@ -417,6 +417,10 @@ CUTE_TEST(incfgut_ipv4_addr_create_str)
 	incfgut_ipv4_addr_check_create_str_ok("224.0.0.106",
 	                                      INCFGUT_SADDR(224, 0, 0, 106));
 
+	incfgut_ipv4_addr_check_create_str_nok("256.0.0.1", EINVAL);
+	incfgut_ipv4_addr_check_create_str_nok("1.300.0.1", EINVAL);
+	incfgut_ipv4_addr_check_create_str_nok("1.0.925.1", EINVAL);
+	incfgut_ipv4_addr_check_create_str_nok("1.0.0.925", EINVAL);
 	incfgut_ipv4_addr_check_create_str_nok("This is not an IPv4 address !",
 	                                       EINVAL);
 
@@ -504,6 +508,10 @@ CUTE_TEST(incfgut_ipv4_addr_create_nstr)
 	incfgut_ipv4_addr_check_create_nstr_nok("255.255.255.255",
 	                                        4,
 	                                        EINVAL);
+	incfgut_ipv4_addr_check_create_nstr_nok("256.0.0.1", 9, EINVAL);
+	incfgut_ipv4_addr_check_create_nstr_nok("1.300.0.1", 9, EINVAL);
+	incfgut_ipv4_addr_check_create_nstr_nok("1.0.925.1", 9, EINVAL);
+	incfgut_ipv4_addr_check_create_nstr_nok("1.0.0.925", 9, EINVAL);
 
 	if (!incfgut_expect_malloc()) {
 		cute_check_ptr(incfg_ipv4_addr_create_nstr("0.0.0.0", 7),
@@ -606,6 +614,10 @@ CUTE_TEST(incfgut_ipv4_addr_check_str)
 	cute_check_sint(incfg_ipv4_addr_check_str("192.16.9.1\n"),
 	                equal,
 	                -EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_str("256.0.0.1"), equal, -EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_str("1.300.0.1"), equal, -EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_str("1.0.925.1"), equal, -EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_str("1.0.0.925"), equal, -EINVAL);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
@@ -673,6 +685,18 @@ CUTE_TEST(incfgut_ipv4_addr_check_nstr)
 		incfg_ipv4_addr_check_nstr("This is not an IPv4 address !", 29),
 		equal,
 		-EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_nstr("256.0.0.1", 9),
+	                equal,
+	                -EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_nstr("1.300.0.1", 9),
+	                equal,
+	                -EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_nstr("1.0.925.1", 9),
+	                equal,
+	                -EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_nstr("1.0.0.925", 9),
+	                equal,
+	                -EINVAL);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
