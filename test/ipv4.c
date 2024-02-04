@@ -113,6 +113,13 @@ CUTE_TEST(incfgut_ipv4_addr_create_saddr)
 	                                     INCFGUT_SADDR(127, 0, 0, 1));
 	incfgut_ipv4_addr_check_create_saddr(INADDR_ALLSNOOPERS_GROUP,
 	                                     INCFGUT_SADDR(224, 0, 0, 106));
+
+	if (!incfgut_expect_malloc()) {
+		cute_check_ptr(incfg_ipv4_addr_create_saddr(INADDR_ANY),
+		               equal,
+		               NULL);
+		cute_check_sint(errno, equal, ENOMEM);
+	}
 }
 
 CUTE_TEST(incfgut_ipv4_addr_init_inet)
@@ -233,6 +240,15 @@ CUTE_TEST(incfgut_ipv4_addr_create_inet)
 	                                    INCFGUT_SADDR(127, 0, 0, 1));
 	incfgut_ipv4_addr_check_create_inet(INADDR_ALLSNOOPERS_GROUP,
 	                                    INCFGUT_SADDR(224, 0, 0, 106));
+
+	if (!incfgut_expect_malloc()) {
+		const struct in_addr inaddr = { .s_addr = htonl(INADDR_ANY) };
+
+		cute_check_ptr(incfg_ipv4_addr_create_inet(&inaddr),
+		               equal,
+		               NULL);
+		cute_check_sint(errno, equal, ENOMEM);
+	}
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
@@ -403,6 +419,13 @@ CUTE_TEST(incfgut_ipv4_addr_create_str)
 
 	incfgut_ipv4_addr_check_create_str_nok("This is not an IPv4 address !",
 	                                       EINVAL);
+
+	if (!incfgut_expect_malloc()) {
+		cute_check_ptr(incfg_ipv4_addr_create_str("0.0.0.0"),
+		               equal,
+		               NULL);
+		cute_check_sint(errno, equal, ENOMEM);
+	}
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
@@ -481,6 +504,13 @@ CUTE_TEST(incfgut_ipv4_addr_create_nstr)
 	incfgut_ipv4_addr_check_create_nstr_nok("255.255.255.255",
 	                                        4,
 	                                        EINVAL);
+
+	if (!incfgut_expect_malloc()) {
+		cute_check_ptr(incfg_ipv4_addr_create_nstr("0.0.0.0", 7),
+		               equal,
+		               NULL);
+		cute_check_sint(errno, equal, ENOMEM);
+	}
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
