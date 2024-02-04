@@ -35,17 +35,22 @@ union incfg_ipv4_addr {
 #define INCFG_IPV4_ADDR_INIT_INET(_inet) \
 	{ .inet = _inet }
 
-#define INCFG_IPV4_ADDR_STRSZ \
+#define INCFG_IPV4_ADDR_STRSZ_MAX \
 	INET_ADDRSTRLEN
 
-#define INCFG_IPV4_ADDR_STRLEN \
-	(INCFG_IPV4_ADDR_STRSZ - 1)
+#define INCFG_IPV4_ADDR_STRLEN_MAX \
+	(INCFG_IPV4_ADDR_STRSZ_MAX - 1)
 
 #define INCFG_IPV4_ADDR_PACKSZ \
 	DPACK_BIN_SIZE(sizeof_member(union incfg_ipv4_addr, bytes))
 
 extern int
-incfg_ipv4_addr_check_str(const char * __restrict string) __incfg_export;
+incfg_ipv4_addr_check_nstr(const char * __restrict string, size_t length)
+	__incfg_export;
+
+extern int
+incfg_ipv4_addr_check_str(const char * __restrict string)
+	__incfg_export;
 
 extern const char *
 incfg_ipv4_addr_str(const union incfg_ipv4_addr * __restrict addr,
@@ -60,6 +65,12 @@ incfg_ipv4_addr_setup_saddr(union incfg_ipv4_addr * __restrict addr,
 extern void
 incfg_ipv4_addr_setup_inet(union incfg_ipv4_addr * __restrict addr,
                            const struct in_addr * __restrict  inet)
+	__incfg_export;
+
+extern int
+incfg_ipv4_addr_setup_nstr(union incfg_ipv4_addr * __restrict addr,
+                           const char * __restrict            string,
+                           size_t                             length)
 	__incfg_export;
 
 extern int
@@ -89,12 +100,6 @@ incfg_ipv4_addr_free(union incfg_ipv4_addr * addr)
 	free(addr);
 }
 
-static inline void
-incfg_ipv4_addr_destroy(union incfg_ipv4_addr * addr)
-{
-	incfg_ipv4_addr_free(addr);
-}
-
 extern union incfg_ipv4_addr *
 incfg_ipv4_addr_create_saddr(in_addr_t saddr)
 	__incfg_export;
@@ -104,7 +109,17 @@ incfg_ipv4_addr_create_inet(const struct in_addr * __restrict inet)
 	__incfg_export;
 
 extern union incfg_ipv4_addr *
+incfg_ipv4_addr_create_nstr(const char * __restrict string, size_t length)
+	__incfg_export;
+
+extern union incfg_ipv4_addr *
 incfg_ipv4_addr_create_str(const char * __restrict string)
 	__incfg_export;
+
+static inline void
+incfg_ipv4_addr_destroy(union incfg_ipv4_addr * addr)
+{
+	incfg_ipv4_addr_free(addr);
+}
 
 #endif /* _INCFG_IPV4_H */

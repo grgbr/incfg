@@ -29,6 +29,12 @@ struct incfg_dns {
 	struct stroll_lvstr name;
 };
 
+#define INCFG_DNS_STRSZ_MAX \
+	(NI_MAXHOST)
+
+#define INCFG_DNS_STRLEN_MAX \
+	(INCFG_DNS_STRSZ_MAX - 1)
+
 #define INCFG_DNS_PACKSZ(_len) \
 	DPACK_STR_SIZE(_len)
 
@@ -36,7 +42,11 @@ struct incfg_dns {
 	DPACK_STR_SIZE(1)
 
 #define INCFG_DNS_PACKSZ_MAX \
-	DPACK_STR_SIZE(NI_MAXHOST)
+	DPACK_STR_SIZE(INCFG_DNS_STRLEN_MAX)
+
+extern int
+incfg_dns_check_nstr(const char * __restrict string,
+                     size_t                  length) __incfg_export;
 
 extern int
 incfg_dns_check_str(const char * __restrict string) __incfg_export;

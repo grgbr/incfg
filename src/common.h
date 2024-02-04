@@ -62,8 +62,8 @@ struct incfg_regex {
 
 extern int
 incfg_regex_nmatch(const struct incfg_regex * __restrict regex,
-                   const char *               string,
-                   size_t                     length);
+                   const char *                          string,
+                   size_t                                length);
 
 static inline int
 incfg_regex_match(const struct incfg_regex * __restrict regex,

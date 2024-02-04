@@ -10,11 +10,26 @@ static struct incfg_regex incfg_dns_regex;
 	"|\\."
 
 int
+incfg_dns_check_nstr(const char * __restrict string, size_t length)
+{
+	incfg_assert_api(incfg_logger);
+	incfg_assert_api(string);
+
+	if (length > INCFG_DNS_STRLEN_MAX)
+		return -ENAMETOOLONG;
+
+	return incfg_regex_nmatch(&incfg_dns_regex, string, length) ? -EINVAL :
+	                                                              0;
+}
+
+int
 incfg_dns_check_str(const char * __restrict string)
 {
 	incfg_assert_api(incfg_logger);
+	incfg_assert_api(string);
 
-	return incfg_regex_match(&incfg_dns_regex, string) ? -EINVAL : 0;
+	return incfg_dns_check_nstr(string,
+	                            strnlen(string, INCFG_DNS_STRSZ_MAX));
 }
 
 int
