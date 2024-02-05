@@ -73,11 +73,11 @@ incfg_dname_ncede(struct stroll_lvstr * __restrict dname,
                   size_t                           length)
 	__incfg_export;
 
-extern void
+extern int
 incfg_dname_dup(struct stroll_lvstr * __restrict dname, const char * name)
 	__incfg_export;
 
-extern void
+extern int
 incfg_dname_ndup(struct stroll_lvstr * __restrict dname,
                  const char *                     name,
                  size_t                           length)

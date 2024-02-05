@@ -92,7 +92,7 @@ incfg_dname_ncede(struct stroll_lvstr * __restrict dname,
 	stroll_lvstr_ncede(dname, name, length);
 }
 
-void
+int
 incfg_dname_dup(struct stroll_lvstr * __restrict dname, const char * name)
 {
 	incfg_assert_api(incfg_logger);
@@ -100,13 +100,15 @@ incfg_dname_dup(struct stroll_lvstr * __restrict dname, const char * name)
 	incfg_assert_api(name);
 	incfg_assert_api(incfg_dname_check(name));
 
-	int err __unused;
+	int ret;
 
-	err = stroll_lvstr_dup(dname, name);
-	incfg_assert_intern(!err);
+	ret = stroll_lvstr_dup(dname, name);
+	incfg_assert_intern(ret != -E2BIG);
+
+	return ret;
 }
 
-void
+int
 incfg_dname_ndup(struct stroll_lvstr * __restrict dname,
                  const char *                     name,
                  size_t                           length)
@@ -117,10 +119,12 @@ incfg_dname_ndup(struct stroll_lvstr * __restrict dname,
 	incfg_assert_api(incfg_dname_ncheck(name, length));
 	incfg_assert_api(strnlen(name, INCFG_DNAME_STRSZ_MAX) >= length);
 
-	int err __unused;
+	int ret;
 
-	err = stroll_lvstr_ndup(dname, name, length);
-	incfg_assert_intern(!err);
+	ret = stroll_lvstr_ndup(dname, name, length);
+	incfg_assert_intern(ret != -E2BIG);
+
+	return ret;
 }
 
 size_t
