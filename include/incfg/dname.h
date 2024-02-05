@@ -104,11 +104,13 @@ incfg_dname_ndup(struct stroll_lvstr * __restrict dname,
 	__incfg_export;
 
 extern size_t
-incfg_dname_packsz(size_t len) __incfg_const
-                               __incfg_nothrow
-                               __leaf
-                               __warn_result
-                               __incfg_export;
+incfg_dname_packsz(const struct stroll_lvstr * __restrict dname)
+	__incfg_nonull(1)
+	__incfg_pure
+	__incfg_nothrow
+	__leaf
+	__warn_result
+	__incfg_export;
 
 extern int
 incfg_dname_pack(const struct stroll_lvstr * __restrict dname,

@@ -128,12 +128,12 @@ incfg_dname_ndup(struct stroll_lvstr * __restrict dname,
 }
 
 size_t
-incfg_dname_packsz(size_t len)
+incfg_dname_packsz(const struct stroll_lvstr * __restrict dname)
 {
 	incfg_assert_api(incfg_logger);
-	incfg_assert_api(len);
+	incfg_assert_api(dname);
 
-	return dpack_lvstr_size(len);
+	return dpack_lvstr_size(stroll_lvstr_len(dname));
 }
 
 int
