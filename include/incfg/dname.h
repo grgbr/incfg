@@ -14,6 +14,26 @@
  * @copyright Copyright (C) 2024 Grégor Boirie <gregor.boirie@free.fr>
  * @license   [GNU Lesser General Public License (LGPL) v3]
  *            (https://www.gnu.org/licenses/lgpl+gpl-3.0.txt)
+ *
+ * Interface to work with DNS domain names deeply inspired by the `domain-name'
+ * typedef defined into section 4 of RFC 6991.
+ * It is designed to allow for current practice in domain name use, and some
+ * possible future expansion.
+ *
+ * Basically, domain names encoding :
+ * - uses US-ASCII,
+ * - is restricted to ``NI_MAXHOST - 1`` characters (1024 on modern Linux
+ *   platforms),
+ * - with DNS labels shorter or equal to ``NS_MAXLABEL`` (63 characters).
+ *
+ * For more informations, refer to :
+ * - RFC 6991: Common YANG Data Types
+ * - RFC 952:  DoD Internet Host Table Specification
+ * - RFC 1034: Domain Names - Concepts and Facilities
+ * - RFC 1123: Requirements for Internet Hosts -- Application and Support
+ * - RFC 2782: A DNS RR for specifying the location of services (DNS SRV)
+ * - RFC 5890: Internationalized Domain Names in Applications (IDNA):
+ *   Definitions and Document Framework.
  */
 
 #ifndef _INCFG_DNAME_H

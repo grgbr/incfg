@@ -52,3 +52,10 @@ libincfg.pc-tmpl := libincfg_pkgconf_tmpl
 tagfiles := $(shell find $(addprefix $(CURDIR)/,$(subdirs)) \
                     $(HEADERDIR) \
                     -type f)
+
+################################################################################
+# Documentation generation
+################################################################################
+
+doxyconf  := $(CURDIR)/sphinx/Doxyfile
+doxyenv   := SRCDIR="$(HEADERDIR) $(SRCDIR)/src"
