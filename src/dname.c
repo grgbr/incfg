@@ -161,7 +161,7 @@ incfg_dname_unpack(struct stroll_lvstr *  __restrict dname,
 }
 
 ssize_t
-incfg_dname_checkn_unpack(struct stroll_lvstr *  __restrict dname,
+incfg_dname_unpackn_check(struct stroll_lvstr *  __restrict dname,
                           struct dpack_decoder *            decoder)
 {
 	incfg_assert_api(incfg_logger);

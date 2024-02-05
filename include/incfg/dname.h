@@ -101,7 +101,7 @@ incfg_dname_unpack(struct stroll_lvstr *  __restrict dname,
 	__incfg_export;
 
 extern ssize_t
-incfg_dname_checkn_unpack(struct stroll_lvstr *  __restrict dname,
+incfg_dname_unpackn_check(struct stroll_lvstr *  __restrict dname,
                           struct dpack_decoder *            decoder)
 	__incfg_export;
 
