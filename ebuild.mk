@@ -19,7 +19,7 @@ HEADERDIR := $(CURDIR)/include
 headers   := $(PACKAGE)/cdefs.h
 headers   := $(PACKAGE)/common.h
 headers   += $(call kconf_enabled,INCFG_IPV4,$(PACKAGE)/ipv4.h)
-headers   += $(call kconf_enabled,INCFG_IPV4,$(PACKAGE)/dns.h)
+headers   += $(call kconf_enabled,INCFG_DNAME,$(PACKAGE)/dname.h)
 
 subdirs   := src
 

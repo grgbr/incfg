@@ -1,5 +1,5 @@
 #include "common.h"
-#include "dns.h"
+#include "dname.h"
 
 static const char *
 incfg_regex_errstr(int error)
@@ -136,10 +136,10 @@ incfg_init(struct elog * logger)
 {
 	incfg_logger = logger;
 
-	return incfg_dns_init();
+	return incfg_dname_init_lib();
 }
 
 void incfg_fini(void)
 {
-	incfg_dns_fini();
+	incfg_dname_fini_lib();
 }

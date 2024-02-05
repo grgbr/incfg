@@ -32,7 +32,7 @@ config INCFG_IPV4
 	help
 	  Build incfg library with support for IPv4.
 
-config INCFG_DNS
+config INCFG_DNAME
 	bool "Domain name support"
 	default y
 	select INCFG_ENABLED
