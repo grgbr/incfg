@@ -14,6 +14,14 @@
  * @copyright Copyright (C) 2024 Grégor Boirie <gregor.boirie@free.fr>
  * @license   [GNU Lesser General Public License (LGPL) v3]
  *            (https://www.gnu.org/licenses/lgpl+gpl-3.0.txt)
+ *
+ * Interface to work with IPv4 addresses inspired by the `ipv4-address-no-zone'
+ * typedef defined into section 4 of RFC 6991.
+ * When encoded as a string, this interface supports IPv4 addresses represented
+ * in dotted-quad notation with no additional zone index.
+ *
+ * For more informations, refer to :
+ * - RFC 6991: Common YANG Data Types
  */
 
 #ifndef _INCFG_IPV4_H
@@ -33,14 +41,6 @@
 #define INCFG_IPV4_ADDR_PACKSZ \
 	DPACK_BIN_SIZE(sizeof_member(struct in_addr, s_addr))
 
-extern int
-incfg_ipv4_addr_check_str(const char * __restrict string)
-	__incfg_export;
-
-extern int
-incfg_ipv4_addr_check_nstr(const char * __restrict string, size_t length)
-	__incfg_export;
-
 extern void
 incfg_ipv4_addr_set_saddr(struct in_addr * __restrict addr, in_addr_t saddr)
 	__incfg_export;
@@ -53,6 +53,14 @@ incfg_ipv4_addr_set_inet(struct in_addr * __restrict       addr,
 extern const char *
 incfg_ipv4_addr_get_str(const struct in_addr * __restrict addr,
                         char * __restrict                 string)
+	__incfg_export;
+
+extern int
+incfg_ipv4_addr_check_str(const char * __restrict string)
+	__incfg_export;
+
+extern int
+incfg_ipv4_addr_check_nstr(const char * __restrict string, size_t length)
 	__incfg_export;
 
 extern int
