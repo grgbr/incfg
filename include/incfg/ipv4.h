@@ -74,13 +74,6 @@ incfg_ipv4_addr_set_nstr(struct in_addr * __restrict addr,
                          size_t                      length)
 	__incfg_export;
 
-static inline
-size_t __incfg_nonull(1) __incfg_const __incfg_nothrow __warn_result
-incfg_ipv4_addr_packsz(const struct in_addr * __restrict addr __unused)
-{
-	return INCFG_IPV4_ADDR_PACKSZ;
-}
-
 extern int
 incfg_ipv4_addr_pack(const struct in_addr * __restrict addr,
                      struct dpack_encoder *            encoder)
@@ -101,6 +94,15 @@ incfg_ipv4_addr_unpackn_check(struct in_addr * __restrict addr,
 
 #if defined(CONFIG_INCFG_ASSERT_API)
 
+extern size_t
+incfg_ipv4_addr_packsz(const struct in_addr * __restrict addr)
+	__incfg_nonull(1)
+	__incfg_const
+	__incfg_nothrow
+	__leaf
+	__warn_result
+	__incfg_export;
+
 extern void
 incfg_ipv4_addr_init(struct in_addr * __restrict addr)
 	__incfg_export;
@@ -110,6 +112,13 @@ incfg_ipv4_addr_fini(struct in_addr * __restrict addr)
 	__incfg_export;
 
 #else  /* defined(CONFIG_INCFG_ASSERT_API) */
+
+static inline
+size_t __incfg_nonull(1) __incfg_const __incfg_nothrow __warn_result
+incfg_ipv4_addr_packsz(const struct in_addr * __restrict addr __unused)
+{
+	return INCFG_IPV4_ADDR_PACKSZ;
+}
 
 static inline void
 incfg_ipv4_addr_init(struct in_addr * __restrict addr __unused)

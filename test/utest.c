@@ -289,6 +289,9 @@ incfgut_teardown(void)
 #if defined(CONFIG_INCFG_IPV4)
 extern CUTE_SUITE_DECL(incfgut_ipv4_suite);
 #endif
+#if defined(CONFIG_INCFG_IPV6)
+extern CUTE_SUITE_DECL(incfgut_ipv6_suite);
+#endif
 #if defined(CONFIG_INCFG_DNAME)
 extern CUTE_SUITE_DECL(incfgut_dname_suite);
 #endif
@@ -297,6 +300,9 @@ extern CUTE_SUITE_DECL(incfgut_dname_suite);
 CUTE_GROUP(incfgut_group) = {
 #if defined(CONFIG_INCFG_IPV4)
 	CUTE_REF(incfgut_ipv4_suite),
+#endif
+#if defined(CONFIG_INCFG_IPV6)
+	CUTE_REF(incfgut_ipv6_suite),
 #endif
 #if defined(CONFIG_INCFG_DNAME)
 	CUTE_REF(incfgut_dname_suite),

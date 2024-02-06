@@ -19,9 +19,7 @@ test-cflags  := -Wall \
                 -D_GNU_SOURCE \
                 -DINCFG_VERSION_STRING="\"$(VERSION)\"" \
                 -I $(TOPDIR)/include \
-                $(filter-out -fno-signed-zeros -fassociative-math, \
-                             $(EXTRA_CFLAGS)) \
-                -fsigned-zeros -fno-associative-math
+                $(EXTRA_CFLAGS)
 test-ldflags := $(test-cflags) \
                 -L$(BUILDDIR)/../src \
                 $(EXTRA_LDFLAGS) \
@@ -41,6 +39,7 @@ builtin.a-cflags    := $(test-cflags)
 checkbins           := incfg-utest
 
 incfg-utest-objs    += $(call kconf_enabled,INCFG_IPV4,ipv4.o)
+incfg-utest-objs    += $(call kconf_enabled,INCFG_IPV6,ipv6.o)
 incfg-utest-objs    += $(call kconf_enabled,INCFG_DNAME,dname.o)
 incfg-utest-cflags  := $(test-cflags)
 incfg-utest-ldflags := $(test-ldflags)

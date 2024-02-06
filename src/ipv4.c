@@ -144,6 +144,15 @@ incfg_ipv4_addr_unpack(struct in_addr * __restrict addr,
 
 #if defined(CONFIG_INCFG_ASSERT_API)
 
+size_t
+incfg_ipv4_addr_packsz(const struct in_addr * __restrict addr)
+{
+	incfg_assert_api(incfg_logger);
+	incfg_assert_api(addr);
+
+	return INCFG_IPV4_ADDR_PACKSZ;
+}
+
 void
 incfg_ipv4_addr_init(struct in_addr * __restrict addr)
 {

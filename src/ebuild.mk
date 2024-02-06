@@ -16,8 +16,7 @@ common-cflags         := -Wall \
                          -Wmissing-declarations \
                          -D_GNU_SOURCE \
                          -I $(TOPDIR)/include \
-                         $(filter-out -ffinite-math-only,$(EXTRA_CFLAGS)) \
-                         -fno-finite-math-only \
+                         $(EXTRA_CFLAGS) \
                          -fvisibility=hidden
 common-ldflags        := $(common-cflags) \
                          $(EXTRA_LDFLAGS) \
@@ -33,6 +32,7 @@ endif # ($(filter y,$(CONFIG_INCFG_ASSERT_API) $(CONFIG_INCFG_ASSERT_INTERN)),)
 solibs                := libincfg.so
 libincfg.so-objs      := shared/common.o
 libincfg.so-objs      += $(call kconf_enabled,INCFG_IPV4,shared/ipv4.o)
+libincfg.so-objs      += $(call kconf_enabled,INCFG_IPV6,shared/ipv6.o)
 libincfg.so-objs      += $(call kconf_enabled,INCFG_DNAME,shared/dname.o)
 libincfg.so-cflags    := $(filter-out -fpie -fPIE,$(common-cflags)) -fpic
 libincfg.so-ldflags   := $(filter-out -fpie -fPIE,$(common-ldflags)) \
@@ -42,6 +42,7 @@ libincfg.so-pkgconf   := libdpack libstroll libelog libpcre2-8
 arlibs                := libincfg.a
 libincfg.a-objs       := static/common.o
 libincfg.a-objs       += $(call kconf_enabled,INCFG_IPV4,static/ipv4.o)
+libincfg.a-objs       += $(call kconf_enabled,INCFG_IPV6,static/ipv6.o)
 libincfg.a-objs       += $(call kconf_enabled,INCFG_DNAME,static/dname.o)
 libincfg.a-cflags     := $(common-cflags)
 

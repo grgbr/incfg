@@ -111,7 +111,7 @@ static void
 incfgut_ipv4_addr_test_get_str(in_addr_t addr)
 {
 	const struct in_addr inaddr = { .s_addr = htonl(addr) };
-	char                 val[INET_ADDRSTRLEN];
+	char                 val[INCFG_IPV4_ADDR_STRSZ_MAX];
 	char                 ref[INET_ADDRSTRLEN];
 
 	cute_check_ptr(inet_ntop(AF_INET, &inaddr, ref, sizeof(ref)),
@@ -176,28 +176,6 @@ CUTE_TEST(incfgut_ipv4_addr_check_str_nok)
 	incfgut_ipv4_addr_test_check_str_nok("fail");
 	incfgut_ipv4_addr_test_check_str_nok("");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
