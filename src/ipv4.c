@@ -141,3 +141,21 @@ incfg_ipv4_addr_unpack(struct in_addr * __restrict addr,
 	                               sizeof(addr->s_addr),
 	                               (char *)&addr->s_addr);
 }
+
+#if defined(CONFIG_INCFG_ASSERT_API)
+
+void
+incfg_ipv4_addr_init(struct in_addr * __restrict addr)
+{
+	incfg_assert_api(incfg_logger);
+	incfg_assert_api(addr);
+}
+
+void
+incfg_ipv4_addr_fini(struct in_addr * __restrict addr)
+{
+	incfg_assert_api(incfg_logger);
+	incfg_assert_api(addr);
+}
+
+#endif /* defined(CONFIG_INCFG_ASSERT_API) */

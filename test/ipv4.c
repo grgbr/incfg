@@ -14,19 +14,6 @@
 #include <cute/expect.h>
 #include <errno.h>
 
-#define INCFGUT_SADDR(...) \
-	((const uint8_t []) { __VA_ARGS__ })
-
-static void * incfgut_ipv4_tofree = NULL;
-
-static void
-incfgut_ipv4_teardown(void)
-{
-	free(incfgut_ipv4_tofree);
-	incfgut_ipv4_tofree = NULL;
-	incfgut_teardown();
-}
-
 static void
 incfgut_ipv4_addr_test_set_addr(in_addr_t addr)
 {
@@ -262,33 +249,6 @@ CUTE_TEST(incfgut_ipv4_addr_check_nstr_nok)
 	incfgut_ipv4_addr_test_check_nstr_nok("fail");
 	incfgut_ipv4_addr_test_check_nstr_nok("");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
@@ -571,5 +531,5 @@ CUTE_GROUP(incfgut_ipv4_group) = {
 CUTE_SUITE_EXTERN(incfgut_ipv4_suite,
                   incfgut_ipv4_group,
                   incfgut_setup,
-                  incfgut_ipv4_teardown,
+                  incfgut_teardown,
                   CUTE_DFLT_TMOUT);

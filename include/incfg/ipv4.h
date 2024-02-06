@@ -95,8 +95,21 @@ static inline ssize_t
 incfg_ipv4_addr_unpackn_check(struct in_addr * __restrict addr,
                               struct dpack_decoder *      decoder)
 {
+	/* No particular data consistency check to do... */
 	return incfg_ipv4_addr_unpack(addr, decoder);
 }
+
+#if defined(CONFIG_INCFG_ASSERT_API)
+
+extern void
+incfg_ipv4_addr_init(struct in_addr * __restrict addr)
+	__incfg_export;
+
+extern void
+incfg_ipv4_addr_fini(struct in_addr * __restrict addr)
+	__incfg_export;
+
+#else  /* defined(CONFIG_INCFG_ASSERT_API) */
 
 static inline void
 incfg_ipv4_addr_init(struct in_addr * __restrict addr __unused)
@@ -107,5 +120,7 @@ static inline void
 incfg_ipv4_addr_fini(struct in_addr * __restrict addr __unused)
 {
 }
+
+#endif /* defined(CONFIG_INCFG_ASSERT_API) */
 
 #endif /* _INCFG_IPV4_H */
