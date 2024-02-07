@@ -79,12 +79,12 @@ incfg_ipv4_addr_pack(const struct in_addr * __restrict addr,
                      struct dpack_encoder *            encoder)
 	__incfg_export;
 
-extern ssize_t
+extern int
 incfg_ipv4_addr_unpack(struct in_addr * __restrict addr,
                        struct dpack_decoder *      decoder)
 	__incfg_export;
 
-static inline ssize_t
+static inline int
 incfg_ipv4_addr_unpackn_check(struct in_addr * __restrict addr,
                               struct dpack_decoder *      decoder)
 {

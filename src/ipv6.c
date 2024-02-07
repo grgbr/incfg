@@ -113,7 +113,7 @@ incfg_ipv6_addr_pack(const struct in6_addr * __restrict addr,
 	                        sizeof(addr->s6_addr));
 }
 
-ssize_t
+int
 incfg_ipv6_addr_unpack(struct in6_addr * __restrict addr,
                        struct dpack_decoder *       decoder)
 {
@@ -121,9 +121,13 @@ incfg_ipv6_addr_unpack(struct in6_addr * __restrict addr,
 	incfg_assert_api(addr);
 	incfg_assert_api(decoder);
 
-	return dpack_decode_bincpy_equ(decoder,
-	                               sizeof(addr->s6_addr),
-	                               (char *)&addr->s6_addr);
+	ssize_t err;
+
+	err = dpack_decode_bincpy_equ(decoder,
+	                              sizeof(addr->s6_addr),
+	                              (char *)&addr->s6_addr);
+
+	return (err >= 0) ? 0 : (int)err;
 }
 
 #if defined(CONFIG_INCFG_ASSERT_API)

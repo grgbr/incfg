@@ -742,7 +742,7 @@ CUTE_TEST(incfgut_dname_unpack)
 
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
-	cute_check_sint(incfg_dname_unpack(&dname, &dec), equal, 12U);
+	cute_check_sint(incfg_dname_unpack(&dname, &dec), equal, 0);
 	incfgut_dname_tofree = dname.rwstr;
 	cute_check_uint(dpack_decoder_data_left(&dec), equal, 0);
 	cute_check_str(incfg_dname_get_str(&dname), equal, "host.domain.");
@@ -797,7 +797,7 @@ CUTE_TEST(incfgut_dname_unpackn_check)
 
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
-	cute_check_sint(incfg_dname_unpackn_check(&dname, &dec), equal, 12U);
+	cute_check_sint(incfg_dname_unpackn_check(&dname, &dec), equal, 0);
 	incfgut_dname_tofree = dname.rwstr;
 	cute_check_uint(dpack_decoder_data_left(&dec), equal, 0);
 	cute_check_str(incfg_dname_get_str(&dname), equal, "host.domain.");

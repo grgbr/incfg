@@ -125,12 +125,12 @@ incfg_dname_pack(const struct stroll_lvstr * __restrict dname,
                  struct dpack_encoder *                 encoder)
 	__incfg_export;
 
-extern ssize_t
+extern int
 incfg_dname_unpack(struct stroll_lvstr *  __restrict dname,
                    struct dpack_decoder *            decoder)
 	__incfg_export;
 
-extern ssize_t
+extern int
 incfg_dname_unpackn_check(struct stroll_lvstr *  __restrict dname,
                           struct dpack_decoder *            decoder)
 	__incfg_export;

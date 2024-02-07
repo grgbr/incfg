@@ -455,9 +455,7 @@ CUTE_TEST(incfgut_ipv6_addr_unpack)
 	memset(&addr, 0xff, sizeof(addr));
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
-	cute_check_sint(incfg_ipv6_addr_unpack(&addr, &dec),
-	                equal,
-	                (ssize_t)sizeof(addr));
+	cute_check_sint(incfg_ipv6_addr_unpack(&addr, &dec), equal, 0);
 	cute_check_uint(dpack_decoder_data_left(&dec), equal, 0);
 	cute_check_mem(&addr, equal, &ref, sizeof(ref));
 

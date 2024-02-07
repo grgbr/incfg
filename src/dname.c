@@ -172,7 +172,7 @@ incfg_dname_pack(const struct stroll_lvstr * __restrict dname,
 	return dpack_encode_lvstr(encoder, dname);
 }
 
-ssize_t
+int
 incfg_dname_unpack(struct stroll_lvstr *  __restrict dname,
                    struct dpack_decoder *            decoder)
 {
@@ -180,10 +180,14 @@ incfg_dname_unpack(struct stroll_lvstr *  __restrict dname,
 	incfg_assert_api(dname);
 	incfg_assert_api(decoder);
 
-	return dpack_decode_lvstr_max(decoder, INCFG_DNAME_STRLEN_MAX, dname);
+	ssize_t err;
+
+	err = dpack_decode_lvstr_max(decoder, INCFG_DNAME_STRLEN_MAX, dname);
+
+	return (err >= 0) ? 0 : (int)err;
 }
 
-ssize_t
+int
 incfg_dname_unpackn_check(struct stroll_lvstr *  __restrict dname,
                           struct dpack_decoder *            decoder)
 {
@@ -196,7 +200,7 @@ incfg_dname_unpackn_check(struct stroll_lvstr *  __restrict dname,
 
 	len = dpack_decode_strdup_max(decoder, INCFG_DNAME_STRLEN_MAX, &str);
 	if (len < 0)
-		return len;
+		return (int)len;
 
 	if (incfg_dname_ncheck(str, (size_t)len)) {
 		free(str);
@@ -205,7 +209,7 @@ incfg_dname_unpackn_check(struct stroll_lvstr *  __restrict dname,
 
 	stroll_lvstr_ncede(dname, str, (size_t)len);
 
-	return len;
+	return 0;
 }
 
 void
