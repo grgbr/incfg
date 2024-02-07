@@ -21,7 +21,7 @@
  * in network byte order, not in host byte order as are the IPv4 equivalents.
  */
 
-#define IN6ADDR_LINKLOCAL_ALLNODES_INIT	\
+#define IN6ADDR_LINKLOCAL_ALLNODES_INIT \
 	{ { { 0xff,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
 
 static const struct in6_addr
@@ -166,6 +166,8 @@ CUTE_TEST(incfgut_ipv6_addr_check_str_nok)
 	incfgut_ipv6_addr_test_check_str_nok("ff02:::");
 	incfgut_ipv6_addr_test_check_str_nok("fffff::2");
 	incfgut_ipv6_addr_test_check_str_nok("f:f:f:f:f:f:f:f:f");
+	incfgut_ipv6_addr_test_check_str_nok("f:");
+	incfgut_ipv6_addr_test_check_str_nok(":f");
 	incfgut_ipv6_addr_test_check_str_nok("fail");
 	incfgut_ipv6_addr_test_check_str_nok("");
 }
@@ -219,6 +221,8 @@ CUTE_TEST(incfgut_ipv6_addr_check_nstr_nok)
 	incfgut_ipv6_addr_test_check_nstr_nok("ff02:::");
 	incfgut_ipv6_addr_test_check_nstr_nok("fffff::2");
 	incfgut_ipv6_addr_test_check_nstr_nok("f:f:f:f:f:f:f:f:f");
+	incfgut_ipv6_addr_test_check_nstr_nok("f:");
+	incfgut_ipv6_addr_test_check_nstr_nok(":f");
 	incfgut_ipv6_addr_test_check_nstr_nok("fail");
 	incfgut_ipv6_addr_test_check_nstr_nok("");
 }
@@ -281,6 +285,8 @@ CUTE_TEST(incfgut_ipv6_addr_set_str_nok)
 	incfgut_ipv6_addr_test_set_str_nok("ff02:::");
 	incfgut_ipv6_addr_test_set_str_nok("fffff::2");
 	incfgut_ipv6_addr_test_set_str_nok("f:f:f:f:f:f:f:f:f");
+	incfgut_ipv6_addr_test_set_str_nok("f:");
+	incfgut_ipv6_addr_test_set_str_nok(":f");
 	incfgut_ipv6_addr_test_set_str_nok("fail");
 	incfgut_ipv6_addr_test_set_str_nok("");
 }
@@ -348,6 +354,8 @@ CUTE_TEST(incfgut_ipv6_addr_set_nstr_nok)
 	incfgut_ipv6_addr_test_set_nstr_nok("ff02:::");
 	incfgut_ipv6_addr_test_set_nstr_nok("fffff::2");
 	incfgut_ipv6_addr_test_set_nstr_nok("f:f:f:f:f:f:f:f:f");
+	incfgut_ipv6_addr_test_set_nstr_nok("f:");
+	incfgut_ipv6_addr_test_set_nstr_nok(":f");
 	incfgut_ipv6_addr_test_set_nstr_nok("fail");
 	incfgut_ipv6_addr_test_set_nstr_nok("");
 }

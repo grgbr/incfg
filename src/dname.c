@@ -35,13 +35,37 @@ incfg_dname_ncheck(const char * __restrict string, size_t length)
 	return 0;
 }
 
+const char *
+incfg_dname_get_str(const struct stroll_lvstr * __restrict dname)
+{
+	incfg_assert_api(incfg_logger);
+	incfg_assert_api(dname);
+
+	const char * str;
+
+	str = stroll_lvstr_cstr(dname);
+	incfg_assert_api(!incfg_dname_check(str));
+
+	return str;
+}
+
+size_t
+incfg_dname_get_len(const struct stroll_lvstr * __restrict dname)
+{
+	incfg_assert_api(incfg_logger);
+	incfg_assert_api(dname);
+	incfg_assert_api(!incfg_dname_check(stroll_lvstr_cstr(dname)));
+
+	return stroll_lvstr_len(dname);
+}
+
 void
 incfg_dname_lend(struct stroll_lvstr * __restrict dname, const char * name)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
 	incfg_assert_api(name);
-	incfg_assert_api(incfg_dname_check(name));
+	incfg_assert_api(!incfg_dname_check(name));
 
 	int err __unused;
 
@@ -57,8 +81,7 @@ incfg_dname_nlend(struct stroll_lvstr * __restrict dname,
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
 	incfg_assert_api(name);
-	incfg_assert_api(incfg_dname_check(name));
-	incfg_assert_api(incfg_dname_ncheck(name, length));
+	incfg_assert_api(!incfg_dname_ncheck(name, length));
 	incfg_assert_api(strnlen(name, INCFG_DNAME_STRSZ_MAX) == length);
 
 	stroll_lvstr_nlend(dname, name, length);
@@ -70,7 +93,7 @@ incfg_dname_cede(struct stroll_lvstr * __restrict dname, char * name)
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
 	incfg_assert_api(name);
-	incfg_assert_api(incfg_dname_check(name));
+	incfg_assert_api(!incfg_dname_check(name));
 
 	int err __unused;
 
@@ -86,7 +109,7 @@ incfg_dname_ncede(struct stroll_lvstr * __restrict dname,
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
 	incfg_assert_api(name);
-	incfg_assert_api(incfg_dname_ncheck(name, length));
+	incfg_assert_api(!incfg_dname_ncheck(name, length));
 	incfg_assert_api(strnlen(name, INCFG_DNAME_STRSZ_MAX) == length);
 
 	stroll_lvstr_ncede(dname, name, length);
@@ -98,7 +121,7 @@ incfg_dname_dup(struct stroll_lvstr * __restrict dname, const char * name)
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
 	incfg_assert_api(name);
-	incfg_assert_api(incfg_dname_check(name));
+	incfg_assert_api(!incfg_dname_check(name));
 
 	int ret;
 
@@ -116,7 +139,7 @@ incfg_dname_ndup(struct stroll_lvstr * __restrict dname,
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
 	incfg_assert_api(name);
-	incfg_assert_api(incfg_dname_ncheck(name, length));
+	incfg_assert_api(!incfg_dname_ncheck(name, length));
 	incfg_assert_api(strnlen(name, INCFG_DNAME_STRSZ_MAX) >= length);
 
 	int ret;
@@ -142,8 +165,8 @@ incfg_dname_pack(const struct stroll_lvstr * __restrict dname,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
-	incfg_assert_api(incfg_dname_ncheck(stroll_lvstr_cstr(dname),
-	                                    stroll_lvstr_len(dname)));
+	incfg_assert_api(!incfg_dname_ncheck(stroll_lvstr_cstr(dname),
+	                                     stroll_lvstr_len(dname)));
 	incfg_assert_api(encoder);
 
 	return dpack_encode_lvstr(encoder, dname);
@@ -182,7 +205,7 @@ incfg_dname_unpackn_check(struct stroll_lvstr *  __restrict dname,
 
 	stroll_lvstr_ncede(dname, str, (size_t)len);
 
-	return 0;
+	return len;
 }
 
 void

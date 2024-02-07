@@ -73,6 +73,14 @@ incfg_dname_ncheck(const char * __restrict string,
                    size_t                  length)
 	__incfg_export;
 
+extern const char *
+incfg_dname_get_str(const struct stroll_lvstr * __restrict dname)
+	__incfg_export;
+
+extern size_t
+incfg_dname_get_len(const struct stroll_lvstr * __restrict dname)
+	__incfg_export;
+
 extern void
 incfg_dname_lend(struct stroll_lvstr * __restrict dname, const char * name)
 	__incfg_export;
