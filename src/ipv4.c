@@ -1,5 +1,5 @@
 #include "incfg/ipv4.h"
-#include "common.h"
+#include "addr.h"
 #include <dpack/codec.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -34,38 +34,48 @@ incfg_ipv4_addr_parse_str(struct in_addr * __restrict addr,
 }
 
 void
-incfg_ipv4_addr_set_saddr(struct in_addr * __restrict addr, in_addr_t saddr)
+incfg_ipv4_addr_set_saddr(struct incfg_ipv4_addr * __restrict addr,
+                          in_addr_t                           saddr)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 
-	addr->s_addr = htonl(saddr);
+	if (addr->inet.s_addr != saddr) {
+		incfg_addr_clear_str(&addr->base);
+		addr->inet.s_addr = htonl(saddr);
+	}
 }
 
 void
-incfg_ipv4_addr_set_inet(struct in_addr * __restrict       addr,
-                         const struct in_addr * __restrict inet)
+incfg_ipv4_addr_set_inet(struct incfg_ipv4_addr * __restrict addr,
+                         const struct in_addr * __restrict   inet)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(inet);
 
-	*addr = *inet;
+	incfg_ipv4_addr_set_saddr(addr, inet->s_addr);
 }
 
-const char *
-incfg_ipv4_addr_get_str(const struct in_addr * __restrict addr,
-                        char * __restrict                 string)
+const struct stroll_lvstr *
+incfg_ipv4_addr_get_str(struct incfg_ipv4_addr * __restrict addr)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
-	incfg_assert_api(string);
 
-	const char * str;
+	if (!stroll_lvstr_cstr(&addr->base.lvstr)) {
+		char         str[INET_ADDRSTRLEN];
+		const char * ptr __unused;
 
-	str = inet_ntop(AF_INET, addr, string, INCFG_IPV4_ADDR_STRSZ_MAX);
-	incfg_assert_intern(str);
+		ptr = inet_ntop(AF_INET, &addr->inet, str, sizeof(str));
+		incfg_assert_intern(ptr == str);
 
-	return str;
+		if (incfg_addr_set_str(&addr->base, str))
+			/* errno will be set to ENOMEM. */
+			return NULL;
+	}
+
+	return &addr->base.lvstr;
 }
 
 int
@@ -85,90 +95,91 @@ incfg_ipv4_addr_check_nstr(const char * __restrict string,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(string);
-	incfg_assert_api(strnlen(string, INCFG_IPV4_ADDR_STRSZ_MAX) == length);
+	incfg_assert_api(strnlen(string, INET_ADDRSTRLEN) == length);
 
-	struct in_addr addr;
-
-	return incfg_ipv4_addr_parse_str(&addr, string);
+	return incfg_ipv4_addr_check_str(string);
 }
 
 int
-incfg_ipv4_addr_set_str(struct in_addr * __restrict addr,
-                        const char * __restrict     string)
+incfg_ipv4_addr_set_str(struct incfg_ipv4_addr * __restrict addr,
+                        const char * __restrict             string)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(string);
 
-	return incfg_ipv4_addr_parse_str(addr, string);
+	struct in_addr tmp;
+	int            err;
+
+	err = incfg_ipv4_addr_parse_str(&tmp, string);
+	if (err)
+		return err;
+
+	incfg_ipv4_addr_set_inet(addr, &tmp);
+
+	return 0;
 }
 
 int
-incfg_ipv4_addr_set_nstr(struct in_addr * __restrict addr,
-                         const char * __restrict     string,
-                         size_t                      length __unused)
+incfg_ipv4_addr_set_nstr(struct incfg_ipv4_addr * __restrict addr,
+                         const char * __restrict             string,
+                         size_t                              length __unused)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(string);
-	incfg_assert_api(strnlen(string, INCFG_IPV4_ADDR_STRSZ_MAX) == length);
+	incfg_assert_api(strnlen(string, INET_ADDRSTRLEN) == length);
 
-	return incfg_ipv4_addr_parse_str(addr, string);
+	return incfg_ipv4_addr_set_str(addr, string);
 }
 
 int
-incfg_ipv4_addr_pack(const struct in_addr * __restrict addr,
-                     struct dpack_encoder *            encoder)
+incfg_ipv4_addr_pack(const struct incfg_ipv4_addr * __restrict addr,
+                     struct dpack_encoder *                    encoder)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(encoder);
 
 	return dpack_encode_bin(encoder,
-	                        (const char *)&addr->s_addr,
-	                        sizeof(addr->s_addr));
+	                        (const char *)&addr->inet.s_addr,
+	                        sizeof(addr->inet.s_addr));
 }
 
 int
-incfg_ipv4_addr_unpack(struct in_addr * __restrict addr,
-                       struct dpack_decoder *      decoder)
+incfg_ipv4_addr_unpack(struct incfg_ipv4_addr * __restrict addr,
+                       struct dpack_decoder *              decoder)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(decoder);
 
-	ssize_t err;
+	ssize_t   err;
+	in_addr_t saddr;
 
-	err = dpack_decode_bincpy_equ(decoder,
-	                              sizeof(addr->s_addr),
-	                              (char *)&addr->s_addr);
+	err = dpack_decode_bincpy_equ(decoder, sizeof(saddr), (char *)&saddr);
+	if (err < 0)
+		return (int)err;
 
-	return (err >= 0) ? 0 : (int)err;
-}
+	incfg_ipv4_addr_set_saddr(addr, saddr);
 
-#if defined(CONFIG_INCFG_ASSERT_API)
-
-size_t
-incfg_ipv4_addr_packsz(const struct in_addr * __restrict addr)
-{
-	incfg_assert_api(incfg_logger);
-	incfg_assert_api(addr);
-
-	return INCFG_IPV4_ADDR_PACKSZ;
+	return 0;
 }
 
 void
-incfg_ipv4_addr_init(struct in_addr * __restrict addr)
+incfg_ipv4_addr_init(struct incfg_ipv4_addr * __restrict addr)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
+
+	incfg_addr_init(&addr->base, INCFG_ADDR_IPV4_TYPE);
 }
 
 void
-incfg_ipv4_addr_fini(struct in_addr * __restrict addr)
+incfg_ipv4_addr_fini(struct incfg_ipv4_addr * __restrict addr)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
-}
 
-#endif /* defined(CONFIG_INCFG_ASSERT_API) */
+	incfg_addr_fini(&addr->base);
+}

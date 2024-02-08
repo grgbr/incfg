@@ -7,7 +7,7 @@
 
 /**
  * @file
- * Base interface
+ * Network address interface
  *
  * @author    Grégor Boirie <gregor.boirie@free.fr>
  * @date      03 Feb 2024
@@ -16,17 +16,22 @@
  *            (https://www.gnu.org/licenses/lgpl+gpl-3.0.txt)
  */
 
-#ifndef _INCFG_COMMON_H
-#define _INCFG_COMMON_H
+#ifndef _INCFG_ADDR_H
+#define _INCFG_ADDR_H
 
-#include <incfg/priv/cdefs.h>
+#include <incfg/cdefs.h>
+#include <stroll/lvstr.h>
 
-struct elog;
+enum incfg_addr_type {
+	INCFG_ADDR_IPV4_TYPE  = 0,
+	INCFG_ADDR_IPV6_TYPE  = 1,
+	INCFG_ADDR_DNAME_TYPE = 2,
+	INCFG_ADDR_TYPE_NR
+};
 
-extern int
-incfg_init(struct elog * logger) __incfg_export;
+struct incfg_addr {
+	enum incfg_addr_type type;
+	struct stroll_lvstr  lvstr;
+};
 
-extern void
-incfg_fini(void) __incfg_export;
-
-#endif /* _INCFG_COMMON_H */
+#endif /* _INCFG_ADDR_H */

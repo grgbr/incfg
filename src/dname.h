@@ -20,7 +20,7 @@ incfg_dname_fini_lib(void);
 
 #else  /* !defined(CONFIG_INCFG_DNAME) */
 
-static inline int incfg_dname_init_lib(void) {}
+static inline int incfg_dname_init_lib(void) { return 0; }
 
 static inline void incfg_dname_fini_lib(void) {}
 

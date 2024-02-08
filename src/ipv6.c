@@ -1,5 +1,5 @@
 #include "incfg/ipv6.h"
-#include "common.h"
+#include "addr.h"
 #include <dpack/codec.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -27,29 +27,38 @@ incfg_ipv6_addr_parse_str(struct in6_addr * __restrict addr,
 }
 
 void
-incfg_ipv6_addr_set_inet(struct in6_addr * __restrict       addr,
-                         const struct in6_addr * __restrict inet)
+incfg_ipv6_addr_set_inet(struct incfg_ipv6_addr * __restrict addr,
+                         const struct in6_addr * __restrict  inet)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(inet);
 
-	*addr = *inet;
+	if (memcmp(&addr->inet, inet, sizeof(addr->inet))) {
+		incfg_addr_clear_str(&addr->base);
+		addr->inet = *inet;
+	}
 }
 
-const char *
-incfg_ipv6_addr_get_str(const struct in6_addr * __restrict addr,
-                        char * __restrict                  string)
+const struct stroll_lvstr *
+incfg_ipv6_addr_get_str(struct incfg_ipv6_addr * __restrict addr)
 {
+	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
-	incfg_assert_api(string);
 
-	const char * str;
+	if (!stroll_lvstr_cstr(&addr->base.lvstr)) {
+		char         str[INET6_ADDRSTRLEN];
+		const char * ptr __unused;
 
-	str = inet_ntop(AF_INET6, addr, string, INCFG_IPV6_ADDR_STRSZ_MAX);
-	incfg_assert_intern(str);
+		ptr = inet_ntop(AF_INET6, &addr->inet, str, sizeof(str));
+		incfg_assert_intern(ptr == str);
 
-	return str;
+		if (incfg_addr_set_str(&addr->base, str))
+			/* errno will be set to ENOMEM. */
+			return NULL;
+	}
+
+	return &addr->base.lvstr;
 }
 
 int
@@ -69,90 +78,93 @@ incfg_ipv6_addr_check_nstr(const char * __restrict string,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(string);
-	incfg_assert_api(strnlen(string, INCFG_IPV6_ADDR_STRSZ_MAX) == length);
+	incfg_assert_api(strnlen(string, INET6_ADDRSTRLEN) == length);
 
-	struct in6_addr addr;
-
-	return incfg_ipv6_addr_parse_str(&addr, string);
+	return incfg_ipv6_addr_check_str(string);
 }
 
 int
-incfg_ipv6_addr_set_str(struct in6_addr * __restrict addr,
-                        const char * __restrict      string)
+incfg_ipv6_addr_set_str(struct incfg_ipv6_addr * __restrict addr,
+                        const char * __restrict             string)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(string);
 
-	return incfg_ipv6_addr_parse_str(addr, string);
+	struct in6_addr tmp;
+	int             err;
+
+	err = incfg_ipv6_addr_parse_str(&tmp, string);
+	if (err)
+		return err;
+
+	incfg_ipv6_addr_set_inet(addr, &tmp);
+
+	return 0;
 }
 
 int
-incfg_ipv6_addr_set_nstr(struct in6_addr * __restrict addr,
-                         const char * __restrict      string,
-                         size_t                       length __unused)
+incfg_ipv6_addr_set_nstr(struct incfg_ipv6_addr * __restrict addr,
+                         const char * __restrict             string,
+                         size_t                              length __unused)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(string);
-	incfg_assert_api(strnlen(string, INCFG_IPV6_ADDR_STRSZ_MAX) == length);
+	incfg_assert_api(strnlen(string, INET6_ADDRSTRLEN) == length);
 
-	return incfg_ipv6_addr_parse_str(addr, string);
+	return incfg_ipv6_addr_set_str(addr, string);
 }
 
 int
-incfg_ipv6_addr_pack(const struct in6_addr * __restrict addr,
-                     struct dpack_encoder *             encoder)
+incfg_ipv6_addr_pack(const struct incfg_ipv6_addr * __restrict addr,
+                     struct dpack_encoder *                    encoder)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(encoder);
 
 	return dpack_encode_bin(encoder,
-	                        (const char *)&addr->s6_addr,
-	                        sizeof(addr->s6_addr));
+	                        (const char *)&addr->inet.s6_addr,
+	                        sizeof(addr->inet.s6_addr));
 }
 
 int
-incfg_ipv6_addr_unpack(struct in6_addr * __restrict addr,
-                       struct dpack_decoder *       decoder)
+incfg_ipv6_addr_unpack(struct incfg_ipv6_addr * __restrict addr,
+                       struct dpack_decoder *              decoder)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 	incfg_assert_api(decoder);
 
-	ssize_t err;
+	ssize_t         err;
+	struct in6_addr inet;
 
 	err = dpack_decode_bincpy_equ(decoder,
-	                              sizeof(addr->s6_addr),
-	                              (char *)&addr->s6_addr);
+	                              sizeof(inet.s6_addr),
+	                              (char *)inet.s6_addr);
+	if (err < 0)
+		return (int)err;
 
-	return (err >= 0) ? 0 : (int)err;
-}
+	incfg_ipv6_addr_set_inet(addr, &inet);
 
-#if defined(CONFIG_INCFG_ASSERT_API)
-
-size_t
-incfg_ipv6_addr_packsz(const struct in6_addr * __restrict addr)
-{
-	incfg_assert_api(incfg_logger);
-	incfg_assert_api(addr);
-
-	return INCFG_IPV6_ADDR_PACKSZ;
+	return 0;
 }
 
 void
-incfg_ipv6_addr_init(struct in6_addr * __restrict addr)
+incfg_ipv6_addr_init(struct incfg_ipv6_addr * __restrict addr)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
+
+	incfg_addr_init(&addr->base, INCFG_ADDR_IPV6_TYPE);
 }
 
 void
-incfg_ipv6_addr_fini(struct in6_addr * __restrict addr)
+incfg_ipv6_addr_fini(struct incfg_ipv6_addr * __restrict addr)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
-}
 
-#endif /* defined(CONFIG_INCFG_ASSERT_API) */
+	incfg_addr_fini(&addr->base);
+}

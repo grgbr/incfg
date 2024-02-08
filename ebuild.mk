@@ -16,10 +16,12 @@ endif # ($(call kconf_is_enabled,INCFG_ENABLED),)
 endif # ($(realpath $(kconf_config)),)
 
 HEADERDIR := $(CURDIR)/include
-headers   := $(PACKAGE)/cdefs.h
 headers   := $(PACKAGE)/common.h
+headers   := $(PACKAGE)/priv/cdefs.h
+headers   := $(PACKAGE)/priv/addr.h
 headers   += $(call kconf_enabled,INCFG_IPV4,$(PACKAGE)/ipv4.h)
 headers   += $(call kconf_enabled,INCFG_IPV6,$(PACKAGE)/ipv6.h)
+headers   += $(call kconf_enabled,INCFG_IP,$(PACKAGE)/ip.h)
 headers   += $(call kconf_enabled,INCFG_DNAME,$(PACKAGE)/dname.h)
 
 subdirs   := src
