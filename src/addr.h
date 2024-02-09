@@ -44,9 +44,9 @@ incfg_addr_set_type(struct incfg_addr * __restrict addr,
 	addr->type = type;
 }
 
-static inline int
+static inline void
 incfg_addr_set_str(struct incfg_addr * __restrict addr,
-                   const char * __restrict        string)
+                   char *                         string)
 {
 	incfg_assert_intern(incfg_logger);
 	incfg_assert_intern(addr);
@@ -54,7 +54,10 @@ incfg_addr_set_str(struct incfg_addr * __restrict addr,
 	incfg_assert_intern(string);
 	incfg_assert_intern(*string);
 
-	return stroll_lvstr_dup(&addr->lvstr, string);
+	int err __unused;
+
+	err = stroll_lvstr_cede(&addr->lvstr, string);
+	incfg_assert_intern(!err);
 }
 
 static inline void

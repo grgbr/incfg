@@ -42,19 +42,24 @@ struct incfg_ipv6_addr {
 #define INCFG_IPV6_ADDR_STRLEN_MAX \
 	(INCFG_IPV6_ADDR_STRSZ_MAX - 1)
 
+#if INCFG_IPV6_ADDR_STRLEN_MAX > DPACK_LVSTRLEN_MAX
+#error Underlying lvstr cannot hold a complete IPv6 address string ! \
+       Increase DPack maximum string length and rebuild !
+#endif /* INCFG_IPV6_ADDR_STRLEN_MAX > DPACK_LVSTRLEN_MAX */
+
 #define INCFG_IPV6_ADDR_PACKSZ \
 	DPACK_BIN_SIZE(sizeof_member(struct in6_addr, s6_addr))
-
-extern void
-incfg_ipv6_addr_set_inet(struct incfg_ipv6_addr * __restrict addr,
-                         const struct in6_addr * __restrict  inet)
-	__incfg_export;
 
 static inline const struct in6_addr *
 incfg_ipv6_addr_get_inet(const struct incfg_ipv6_addr * __restrict addr)
 {
 	return &addr->inet;
 }
+
+extern void
+incfg_ipv6_addr_set_inet(struct incfg_ipv6_addr * __restrict addr,
+                         const struct in6_addr * __restrict  inet)
+	__incfg_export;
 
 extern const struct stroll_lvstr *
 incfg_ipv6_addr_get_str(struct incfg_ipv6_addr * __restrict addr)

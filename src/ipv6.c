@@ -1,3 +1,10 @@
+/******************************************************************************
+ * SPDX-License-Identifier: LGPL-3.0-only
+ *
+ * This file is part of InCfg.
+ * Copyright (C) 2024 Grégor Boirie <gregor.boirie@free.fr>
+ ******************************************************************************/
+
 #include "incfg/ipv6.h"
 #include "addr.h"
 #include <dpack/codec.h>
@@ -47,15 +54,17 @@ incfg_ipv6_addr_get_str(struct incfg_ipv6_addr * __restrict addr)
 	incfg_assert_api(addr);
 
 	if (!stroll_lvstr_cstr(&addr->base.lvstr)) {
-		char         str[INET6_ADDRSTRLEN];
+		char *       str;
 		const char * ptr __unused;
+
+		str = malloc(INET6_ADDRSTRLEN);
+		if (!str)
+			return NULL;
 
 		ptr = inet_ntop(AF_INET6, &addr->inet, str, sizeof(str));
 		incfg_assert_intern(ptr == str);
 
-		if (incfg_addr_set_str(&addr->base, str))
-			/* errno will be set to ENOMEM. */
-			return NULL;
+		incfg_addr_set_str(&addr->base, str);
 	}
 
 	return &addr->base.lvstr;

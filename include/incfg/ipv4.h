@@ -42,8 +42,19 @@ struct incfg_ipv4_addr {
 #define INCFG_IPV4_ADDR_STRLEN_MAX \
 	(INCFG_IPV4_ADDR_STRSZ_MAX - 1)
 
+#if INCFG_IPV4_ADDR_STRLEN_MAX > DPACK_LVSTRLEN_MAX
+#error Underlying lvstr cannot hold a complete IPv4 address string ! \
+       Increase DPack maximum string length and rebuild !
+#endif /* INCFG_IPV4_ADDR_STRLEN_MAX > DPACK_LVSTRLEN_MAX */
+
 #define INCFG_IPV4_ADDR_PACKSZ \
 	DPACK_BIN_SIZE(sizeof_member(struct in_addr, s_addr))
+
+static inline const struct in_addr *
+incfg_ipv4_addr_get_inet(const struct incfg_ipv4_addr * __restrict addr)
+{
+	return &addr->inet;
+}
 
 extern void
 incfg_ipv4_addr_set_saddr(struct incfg_ipv4_addr * __restrict addr,
@@ -54,12 +65,6 @@ extern void
 incfg_ipv4_addr_set_inet(struct incfg_ipv4_addr * __restrict addr,
                          const struct in_addr * __restrict   inet)
 	__incfg_export;
-
-static inline const struct in_addr *
-incfg_ipv4_addr_get_inet(const struct incfg_ipv4_addr * __restrict addr)
-{
-	return &addr->inet;
-}
 
 extern const struct stroll_lvstr *
 incfg_ipv4_addr_get_str(struct incfg_ipv4_addr * __restrict addr)

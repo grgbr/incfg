@@ -20,7 +20,7 @@
 #define _INCFG_ADDR_H
 
 #include <incfg/cdefs.h>
-#include <stroll/lvstr.h>
+#include <dpack/lvstr.h>
 
 enum incfg_addr_type {
 	INCFG_ADDR_IPV4_TYPE  = 0,
