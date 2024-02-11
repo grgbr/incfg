@@ -39,10 +39,8 @@
 #ifndef _INCFG_DNAME_H
 #define _INCFG_DNAME_H
 
-#include <incfg/cdefs.h>
+#include <incfg/priv/addr.h>
 #include <netdb.h>
-#include <dpack/lvstr.h>
-#include <stdlib.h>
 
 #define INCFG_DNAME_STRSZ_MAX \
 	(NI_MAXHOST)
@@ -69,78 +67,52 @@ incfg_dname_check(const char * __restrict string)
 	__incfg_export;
 
 extern int
-incfg_dname_ncheck(const char * __restrict string,
-                   size_t                  length)
+incfg_dname_ncheck(const char * __restrict string, size_t length)
 	__incfg_export;
 
-extern const char *
-incfg_dname_get_str(const struct stroll_lvstr * __restrict dname)
+extern int
+incfg_dname_ncheck(const char * __restrict string, size_t length)
+	__incfg_export;
+
+extern const struct stroll_lvstr *
+incfg_dname_get(const struct incfg_addr * __restrict dname)
+	__incfg_export;
+
+extern int
+incfg_dname_set(struct incfg_addr * __restrict dname, const char * name)
+	__incfg_export;
+
+extern int
+incfg_dname_nset(struct incfg_addr * __restrict dname,
+                 const char *                   name,
+                 size_t                         length)
 	__incfg_export;
 
 extern size_t
-incfg_dname_get_len(const struct stroll_lvstr * __restrict dname)
-	__incfg_export;
-
-extern void
-incfg_dname_lend(struct stroll_lvstr * __restrict dname, const char * name)
-	__incfg_export;
-
-extern void
-incfg_dname_nlend(struct stroll_lvstr * __restrict dname,
-                  const char *                     name,
-                  size_t                           length)
-	__incfg_export;
-
-extern void
-incfg_dname_cede(struct stroll_lvstr * __restrict dname, char * name)
-	__incfg_export;
-
-extern void
-incfg_dname_ncede(struct stroll_lvstr * __restrict dname,
-                  char *                           name,
-                  size_t                           length)
+incfg_dname_packsz(const struct incfg_addr * __restrict dname)
 	__incfg_export;
 
 extern int
-incfg_dname_dup(struct stroll_lvstr * __restrict dname, const char * name)
+incfg_dname_pack(const struct incfg_addr * __restrict dname,
+                 struct dpack_encoder *               encoder)
 	__incfg_export;
 
 extern int
-incfg_dname_ndup(struct stroll_lvstr * __restrict dname,
-                 const char *                     name,
-                 size_t                           length)
-	__incfg_export;
-
-extern size_t
-incfg_dname_packsz(const struct stroll_lvstr * __restrict dname)
-	__incfg_nonull(1)
-	__incfg_pure
-	__incfg_nothrow
-	__leaf
-	__warn_result
+incfg_dname_unpack(struct incfg_addr *  __restrict dname,
+                   struct dpack_decoder *          decoder)
 	__incfg_export;
 
 extern int
-incfg_dname_pack(const struct stroll_lvstr * __restrict dname,
-                 struct dpack_encoder *                 encoder)
-	__incfg_export;
-
-extern int
-incfg_dname_unpack(struct stroll_lvstr *  __restrict dname,
-                   struct dpack_decoder *            decoder)
-	__incfg_export;
-
-extern int
-incfg_dname_unpackn_check(struct stroll_lvstr *  __restrict dname,
-                          struct dpack_decoder *            decoder)
+incfg_dname_unpackn_check(struct incfg_addr *  __restrict dname,
+                          struct dpack_decoder *          decoder)
 	__incfg_export;
 
 extern void
-incfg_dname_init(struct stroll_lvstr * __restrict dname)
+incfg_dname_init(struct incfg_addr * __restrict dname)
 	__incfg_export;
 
 extern void
-incfg_dname_fini(struct stroll_lvstr * __restrict dname)
+incfg_dname_fini(struct incfg_addr * __restrict dname)
 	__incfg_export;
 
 #endif /* _INCFG_DNAME_H */

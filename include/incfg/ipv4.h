@@ -50,6 +50,11 @@ struct incfg_ipv4_addr {
 #define INCFG_IPV4_ADDR_PACKSZ \
 	DPACK_BIN_SIZE(sizeof_member(struct in_addr, s_addr))
 
+extern void
+incfg_ipv4_addr_set_saddr(struct incfg_ipv4_addr * __restrict addr,
+                          in_addr_t                           saddr)
+	__incfg_export;
+
 static inline const struct in_addr *
 incfg_ipv4_addr_get_inet(const struct incfg_ipv4_addr * __restrict addr)
 {
@@ -57,17 +62,8 @@ incfg_ipv4_addr_get_inet(const struct incfg_ipv4_addr * __restrict addr)
 }
 
 extern void
-incfg_ipv4_addr_set_saddr(struct incfg_ipv4_addr * __restrict addr,
-                          in_addr_t                           saddr)
-	__incfg_export;
-
-extern void
 incfg_ipv4_addr_set_inet(struct incfg_ipv4_addr * __restrict addr,
                          const struct in_addr * __restrict   inet)
-	__incfg_export;
-
-extern const struct stroll_lvstr *
-incfg_ipv4_addr_get_str(struct incfg_ipv4_addr * __restrict addr)
 	__incfg_export;
 
 extern int
@@ -76,6 +72,10 @@ incfg_ipv4_addr_check_str(const char * __restrict string)
 
 extern int
 incfg_ipv4_addr_check_nstr(const char * __restrict string, size_t length)
+	__incfg_export;
+
+extern const struct stroll_lvstr *
+incfg_ipv4_addr_get_str(struct incfg_ipv4_addr * __restrict addr)
 	__incfg_export;
 
 extern int

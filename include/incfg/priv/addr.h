@@ -26,8 +26,18 @@ enum incfg_addr_type {
 	INCFG_ADDR_IPV4_TYPE  = 0,
 	INCFG_ADDR_IPV6_TYPE  = 1,
 	INCFG_ADDR_DNAME_TYPE = 2,
-	INCFG_ADDR_TYPE_NR
+	_INCFG_ADDR_TYPE_NR
 };
+
+#define INCFG_ADDR_TYPE_NR \
+	compile_eval(_INCFG_ADDR_TYPE_NR <= (INT8_MAX + 1), \
+	             _INCFG_ADDR_TYPE_NR, \
+                     "BUG ! Address type cannot fit into an MsgPack positive" \
+                     "fixint. Fix definition of INCFG_ADDR_TYPE_PACKSZ to " \
+                     "serialize incfg_addr_type enums !")
+
+#define INCFG_ADDR_TYPE_PACKSZ \
+	DPACK_STDINT_SIZE_MIN
 
 struct incfg_addr {
 	enum incfg_addr_type type;

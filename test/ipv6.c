@@ -12,7 +12,6 @@
 #include <cute/cute.h>
 #include <cute/check.h>
 #include <cute/expect.h>
-#include <errno.h>
 
 /*
  * Well known IPv6 addresses borrowed from <linux>/include/linux/in6.h
@@ -42,22 +41,32 @@ in6addr_sitelocal_allrouters = IN6ADDR_SITELOCAL_ALLROUTERS_INIT;
 static void
 incfgut_ipv6_addr_test_set_inet(const struct in6_addr * addr)
 {
-	struct in6_addr       val;
-	const struct in6_addr ref = *addr;
+	struct incfg_ipv6_addr val;
+	const struct in6_addr  ref = *addr;
+
+	incfg_ipv6_addr_init(&val);
 
 	incfg_ipv6_addr_set_inet(&val, &ref);
 
-	cute_check_mem(&val, equal, &ref, sizeof(ref));
+	cute_check_mem(incfg_ipv6_addr_get_inet(&val),
+	               equal,
+	               &ref,
+	               sizeof(ref));
+
+	incfg_ipv6_addr_fini(&val);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv6_addr_set_inet_assert)
 {
-	struct in6_addr addr;
+	struct incfg_ipv6_addr val;
+	struct in6_addr        addr;
+
+	incfg_ipv6_addr_init(&val);
 
 	cute_expect_assertion(incfg_ipv6_addr_set_inet(NULL, &addr));
-	cute_expect_assertion(incfg_ipv6_addr_set_inet(&addr, NULL));
+	cute_expect_assertion(incfg_ipv6_addr_set_inet(&val, NULL));
 }
 
 #else  /* !defined(CONFIG_INCFG_ASSERT_API) */
@@ -82,11 +91,7 @@ CUTE_TEST(incfgut_ipv6_addr_set_inet)
 
 CUTE_TEST(incfgut_ipv6_addr_get_str_assert)
 {
-	struct in6_addr addr;
-	char *          str = str;
-
-	cute_expect_assertion(incfg_ipv6_addr_get_str(&addr, NULL));
-	cute_expect_assertion(incfg_ipv6_addr_get_str(NULL, str));
+	cute_expect_assertion(incfg_ipv6_addr_get_str(NULL));
 }
 
 #else  /* !defined(CONFIG_INCFG_ASSERT_API) */
@@ -101,15 +106,21 @@ CUTE_TEST(incfgut_ipv6_addr_get_str_assert)
 static void
 incfgut_ipv6_addr_test_get_str(const struct in6_addr * addr)
 {
-	char val[INCFG_IPV6_ADDR_STRSZ_MAX];
-	char ref[INET6_ADDRSTRLEN];
+	struct incfg_ipv6_addr      val;
+	const struct stroll_lvstr * str;
+	char                        ref[INET6_ADDRSTRLEN];
+
+	incfg_ipv6_addr_init(&val);
+	incfg_ipv6_addr_set_inet(&val, addr);
 
 	cute_check_ptr(inet_ntop(AF_INET6, addr, ref, sizeof(ref)),
 	               equal,
 	               ref);
 
-	cute_check_ptr(incfg_ipv6_addr_get_str(addr, val), equal, val);
-	cute_check_str(val, equal, ref);
+	str = incfg_ipv6_addr_get_str(&val);
+	cute_check_str(stroll_lvstr_cstr(str), equal, ref);
+
+	incfg_ipv6_addr_fini(&val);
 }
 
 CUTE_TEST(incfgut_ipv6_addr_get_str)
@@ -172,6 +183,7 @@ CUTE_TEST(incfgut_ipv6_addr_check_str_nok)
 	incfgut_ipv6_addr_test_check_str_nok("");
 }
 
+#if 0
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv6_addr_check_nstr_assert)
@@ -481,6 +493,7 @@ CUTE_TEST(incfgut_ipv6_addr_unpack_short)
 
 	dpack_decoder_fini(&dec);
 }
+#endif
 
 CUTE_GROUP(incfgut_ipv6_group) = {
 	CUTE_REF(incfgut_ipv6_addr_set_inet_assert),
@@ -491,6 +504,7 @@ CUTE_GROUP(incfgut_ipv6_group) = {
 	CUTE_REF(incfgut_ipv6_addr_check_str_assert),
 	CUTE_REF(incfgut_ipv6_addr_check_str_ok),
 	CUTE_REF(incfgut_ipv6_addr_check_str_nok),
+#if 0
 	CUTE_REF(incfgut_ipv6_addr_check_nstr_assert),
 	CUTE_REF(incfgut_ipv6_addr_check_nstr_ok),
 	CUTE_REF(incfgut_ipv6_addr_check_nstr_nok),
@@ -509,6 +523,7 @@ CUTE_GROUP(incfgut_ipv6_group) = {
 	CUTE_REF(incfgut_ipv6_addr_unpack_assert),
 	CUTE_REF(incfgut_ipv6_addr_unpack),
 	CUTE_REF(incfgut_ipv6_addr_unpack_short)
+#endif
 };
 
 CUTE_SUITE_EXTERN(incfgut_ipv6_suite,

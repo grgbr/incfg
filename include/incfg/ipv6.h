@@ -61,16 +61,16 @@ incfg_ipv6_addr_set_inet(struct incfg_ipv6_addr * __restrict addr,
                          const struct in6_addr * __restrict  inet)
 	__incfg_export;
 
-extern const struct stroll_lvstr *
-incfg_ipv6_addr_get_str(struct incfg_ipv6_addr * __restrict addr)
-	__incfg_export;
-
 extern int
 incfg_ipv6_addr_check_str(const char * __restrict string)
 	__incfg_export;
 
 extern int
 incfg_ipv6_addr_check_nstr(const char * __restrict string, size_t length)
+	__incfg_export;
+
+extern const struct stroll_lvstr *
+incfg_ipv6_addr_get_str(struct incfg_ipv6_addr * __restrict addr)
 	__incfg_export;
 
 extern int

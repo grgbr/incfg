@@ -12,18 +12,6 @@
 #include <cute/cute.h>
 #include <cute/check.h>
 #include <cute/expect.h>
-#include <errno.h>
-
-static void
-incfgut_ipv4_addr_test_set_addr(in_addr_t addr)
-{
-	struct in_addr       val;
-	const struct in_addr ref = { .s_addr = htonl(addr) };
-
-	incfg_ipv4_addr_set_saddr(&val, addr);
-
-	cute_check_mem(&val, equal, &ref, sizeof(ref));
-}
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
@@ -41,6 +29,23 @@ CUTE_TEST(incfgut_ipv4_addr_set_saddr_assert)
 
 #endif /* defined(CONFIG_INCFG_ASSERT_API) */
 
+static void
+incfgut_ipv4_addr_test_set_addr(in_addr_t addr)
+{
+	struct incfg_ipv4_addr val;
+	const struct in_addr   ref = { .s_addr = htonl(addr) };
+
+	incfg_ipv4_addr_init(&val);
+	incfg_ipv4_addr_set_saddr(&val, addr);
+
+	cute_check_mem(incfg_ipv4_addr_get_inet(&val),
+	               equal,
+	               &ref,
+	               sizeof(ref));
+
+	incfg_ipv4_addr_fini(&val);
+}
+
 CUTE_TEST(incfgut_ipv4_addr_set_saddr)
 {
 	incfgut_ipv4_addr_test_set_addr(INADDR_ANY);
@@ -52,21 +57,30 @@ CUTE_TEST(incfgut_ipv4_addr_set_saddr)
 static void
 incfgut_ipv4_addr_test_set_inet(in_addr_t addr)
 {
-	struct in_addr       val;
-	const struct in_addr ref = { .s_addr = htonl(addr) };
+	struct incfg_ipv4_addr val;
+	const struct in_addr   ref = { .s_addr = htonl(addr) };
 
+	incfg_ipv4_addr_init(&val);
 	incfg_ipv4_addr_set_inet(&val, &ref);
 
-	cute_check_mem(&val, equal, &ref, sizeof(ref));
+	cute_check_mem(incfg_ipv4_addr_get_inet(&val),
+	               equal,
+	               &ref,
+	               sizeof(ref));
+
+	incfg_ipv4_addr_fini(&val);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv4_addr_set_inet_assert)
 {
-	struct in_addr addr;
+	struct incfg_ipv4_addr addr;
+	const struct in_addr   inet;
 
-	cute_expect_assertion(incfg_ipv4_addr_set_inet(NULL, &addr));
+	incfg_ipv4_addr_init(&addr);
+
+	cute_expect_assertion(incfg_ipv4_addr_set_inet(NULL, &inet));
 	cute_expect_assertion(incfg_ipv4_addr_set_inet(&addr, NULL));
 }
 
@@ -91,11 +105,7 @@ CUTE_TEST(incfgut_ipv4_addr_set_inet)
 
 CUTE_TEST(incfgut_ipv4_addr_get_str_assert)
 {
-	struct in_addr addr;
-	char *         str = str;
-
-	cute_expect_assertion(incfg_ipv4_addr_get_str(&addr, NULL));
-	cute_expect_assertion(incfg_ipv4_addr_get_str(NULL, str));
+	cute_expect_assertion(incfg_ipv4_addr_get_str(NULL));
 }
 
 #else  /* !defined(CONFIG_INCFG_ASSERT_API) */
@@ -108,18 +118,23 @@ CUTE_TEST(incfgut_ipv4_addr_get_str_assert)
 #endif /* defined(CONFIG_INCFG_ASSERT_API) */
 
 static void
-incfgut_ipv4_addr_test_get_str(in_addr_t addr)
+incfgut_ipv4_addr_test_get_str(in_addr_t saddr)
 {
-	const struct in_addr inaddr = { .s_addr = htonl(addr) };
-	char                 val[INCFG_IPV4_ADDR_STRSZ_MAX];
-	char                 ref[INET_ADDRSTRLEN];
+	struct incfg_ipv4_addr      addr;
+	const struct stroll_lvstr * str;
+	char                        ref[INET_ADDRSTRLEN];
 
-	cute_check_ptr(inet_ntop(AF_INET, &inaddr, ref, sizeof(ref)),
+	incfg_ipv4_addr_init(&addr);
+	incfg_ipv4_addr_set_saddr(&addr, saddr);
+
+	cute_check_ptr(inet_ntop(AF_INET, &addr.inet, ref, sizeof(ref)),
 	               equal,
 	               ref);
 
-	cute_check_ptr(incfg_ipv4_addr_get_str(&inaddr, val), equal, val);
-	cute_check_str(val, equal, ref);
+	str = incfg_ipv4_addr_get_str(&addr);
+	cute_check_str(stroll_lvstr_cstr(str), equal, ref);
+
+	incfg_ipv4_addr_fini(&addr);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_get_str)
@@ -194,47 +209,49 @@ CUTE_TEST(incfgut_ipv4_addr_check_nstr_assert)
 #endif /* defined(CONFIG_INCFG_ASSERT_API) */
 
 static void
-incfgut_ipv4_addr_test_check_nstr_ok(const char * addr)
+incfgut_ipv4_addr_test_check_nstr_ok(const char * addr, size_t len)
 {
-	cute_check_sint(incfg_ipv4_addr_check_nstr(addr, strlen(addr)),
-	                equal,
-	                0);
+	cute_check_sint(incfg_ipv4_addr_check_nstr(addr, len), equal, 0);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_check_nstr_ok)
 {
-	incfgut_ipv4_addr_test_check_nstr_ok("0.0.0.0");
-	incfgut_ipv4_addr_test_check_nstr_ok("255.255.255.255");
-	incfgut_ipv4_addr_test_check_nstr_ok("127.0.0.1");
-	incfgut_ipv4_addr_test_check_nstr_ok("224.0.0.106");
+	incfgut_ipv4_addr_test_check_nstr_ok("0.0.0.0", 7);
+	incfgut_ipv4_addr_test_check_nstr_ok("255.255.255.255", 15);
+	incfgut_ipv4_addr_test_check_nstr_ok("127.0.0.1", 9);
+	incfgut_ipv4_addr_test_check_nstr_ok("224.0.0.106", 11);
+
+	incfgut_ipv4_addr_test_check_nstr_ok("0.0.0.0xxxx", 7);
+	incfgut_ipv4_addr_test_check_nstr_ok("255.255.255.255xxxx", 15);
+	incfgut_ipv4_addr_test_check_nstr_ok("127.0.0.1xxxx", 9);
+	incfgut_ipv4_addr_test_check_nstr_ok("224.0.0.106xxxx", 11);
 }
 
 static void
-incfgut_ipv4_addr_test_check_nstr_nok(const char * addr)
+incfgut_ipv4_addr_test_check_nstr_nok(const char * addr, size_t len)
 {
-	cute_check_sint(incfg_ipv4_addr_check_nstr(addr, strlen(addr)),
-	                equal,
-	                -EINVAL);
+	cute_check_sint(incfg_ipv4_addr_check_nstr(addr, len), equal, -EINVAL);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_check_nstr_nok)
 {
-	incfgut_ipv4_addr_test_check_nstr_nok("0.0.0.0.");
-	incfgut_ipv4_addr_test_check_nstr_nok("0.0.0.");
-	incfgut_ipv4_addr_test_check_nstr_nok("256.0.0.1");
-	incfgut_ipv4_addr_test_check_nstr_nok("254.300.0.1");
-	incfgut_ipv4_addr_test_check_nstr_nok("254.254.260.1");
-	incfgut_ipv4_addr_test_check_nstr_nok("fail");
-	incfgut_ipv4_addr_test_check_nstr_nok("");
+	incfgut_ipv4_addr_test_check_nstr_nok("0.0.0.0.", 8);
+	incfgut_ipv4_addr_test_check_nstr_nok("0.0.0.", 6);
+	incfgut_ipv4_addr_test_check_nstr_nok("256.0.0.1", 9);
+	incfgut_ipv4_addr_test_check_nstr_nok("254.300.0.1", 11);
+	incfgut_ipv4_addr_test_check_nstr_nok("254.254.260.1", 13);
+	incfgut_ipv4_addr_test_check_nstr_nok("fail", 4);
+	incfgut_ipv4_addr_test_check_nstr_nok("", 0);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv4_addr_set_str_assert)
 {
-	struct in_addr addr;
-	const char *   str = str;
+	struct incfg_ipv4_addr addr;
+	const char *           str = str;
 
+	incfg_ipv4_addr_init(&addr);
 	cute_expect_assertion(incfg_ipv4_addr_set_str(&addr, NULL));
 	cute_expect_assertion(incfg_ipv4_addr_set_str(NULL, str));
 }
@@ -251,14 +268,18 @@ CUTE_TEST(incfgut_ipv4_addr_set_str_assert)
 static void
 incfgut_ipv4_addr_test_set_str_ok(const char * addr)
 {
-	struct in_addr val;
-	struct in_addr ref;
+	struct incfg_ipv4_addr val;
+	struct in_addr         ref;
+
+	incfg_ipv4_addr_init(&val);
 
 	cute_check_sint(inet_pton(AF_INET, addr, &ref), equal, 1);
 
 	cute_check_sint(incfg_ipv4_addr_set_str(&val, addr), equal, 0);
 
-	cute_check_mem(&val, equal, &ref, sizeof(ref));
+	cute_check_mem(&val.inet, equal, &ref, sizeof(ref));
+
+	incfg_ipv4_addr_fini(&val);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_set_str_ok)
@@ -272,9 +293,11 @@ CUTE_TEST(incfgut_ipv4_addr_set_str_ok)
 static void
 incfgut_ipv4_addr_test_set_str_nok(const char * addr)
 {
-	struct in_addr val;
+	struct incfg_ipv4_addr val;
 
+	incfg_ipv4_addr_init(&val);
 	cute_check_sint(incfg_ipv4_addr_set_str(&val, addr), equal, -EINVAL);
+	incfg_ipv4_addr_fini(&val);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_set_str_nok)
@@ -292,12 +315,12 @@ CUTE_TEST(incfgut_ipv4_addr_set_str_nok)
 
 CUTE_TEST(incfgut_ipv4_addr_set_nstr_assert)
 {
-	struct in_addr addr;
-	const char *   str = str;
+	struct incfg_ipv4_addr addr;
+	const char *           str = str;
 
+	incfg_ipv4_addr_init(&addr);
 	cute_expect_assertion(incfg_ipv4_addr_set_nstr(&addr, NULL, 1));
 	cute_expect_assertion(incfg_ipv4_addr_set_nstr(NULL, str, 1));
-	cute_expect_assertion(incfg_ipv4_addr_set_nstr(&addr, "too long", 1));
 }
 
 #else  /* !defined(CONFIG_INCFG_ASSERT_API) */
@@ -310,55 +333,71 @@ CUTE_TEST(incfgut_ipv4_addr_set_nstr_assert)
 #endif /* defined(CONFIG_INCFG_ASSERT_API) */
 
 static void
-incfgut_ipv4_addr_test_set_nstr_ok(const char * addr)
+incfgut_ipv4_addr_test_set_nstr_ok(const char * addr, size_t len)
 {
-	struct in_addr val;
-	struct in_addr ref;
+	struct incfg_ipv4_addr val;
+	char                   str[INET_ADDRSTRLEN];
+	struct in_addr         ref;
 
-	cute_check_sint(inet_pton(AF_INET, addr, &ref), equal, 1);
+	incfg_ipv4_addr_init(&val);
 
-	cute_check_sint(incfg_ipv4_addr_set_nstr(&val, addr, strlen(addr)),
-	                equal,
-	                0);
+	memcpy(str, addr, len);
+	str[len] = '\0';
+	cute_check_sint(inet_pton(AF_INET, str, &ref), equal, 1);
 
-	cute_check_mem(&val, equal, &ref, sizeof(ref));
+	cute_check_sint(incfg_ipv4_addr_set_nstr(&val, addr, len), equal, 0);
+
+	cute_check_mem(&val.inet, equal, &ref, sizeof(ref));
+
+	incfg_ipv4_addr_fini(&val);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_set_nstr_ok)
 {
-	incfgut_ipv4_addr_test_set_nstr_ok("0.0.0.0");
-	incfgut_ipv4_addr_test_set_nstr_ok("255.255.255.255");
-	incfgut_ipv4_addr_test_set_nstr_ok("127.0.0.1");
-	incfgut_ipv4_addr_test_set_nstr_ok("224.0.0.106");
+	incfgut_ipv4_addr_test_set_nstr_ok("0.0.0.0", 7);
+	incfgut_ipv4_addr_test_set_nstr_ok("255.255.255.255", 15);
+	incfgut_ipv4_addr_test_set_nstr_ok("127.0.0.1", 9);
+	incfgut_ipv4_addr_test_set_nstr_ok("224.0.0.106", 11);
+
+	incfgut_ipv4_addr_test_set_nstr_ok("0.0.0.0xxxx", 7);
+	incfgut_ipv4_addr_test_set_nstr_ok("255.255.255.255xxxx", 15);
+	incfgut_ipv4_addr_test_set_nstr_ok("127.0.0.1xxxx", 9);
+	incfgut_ipv4_addr_test_set_nstr_ok("224.0.0.106xxxx", 11);
 }
 
 static void
-incfgut_ipv4_addr_test_set_nstr_nok(const char * addr)
+incfgut_ipv4_addr_test_set_nstr_nok(const char * addr, size_t len)
 {
-	struct in_addr val;
+	struct incfg_ipv4_addr val;
 
-	cute_check_sint(incfg_ipv4_addr_set_nstr(&val, addr, strlen(addr)),
+	incfg_ipv4_addr_init(&val);
+
+	cute_check_sint(incfg_ipv4_addr_set_nstr(&val, addr, len),
 	                equal,
 	                -EINVAL);
+
+	incfg_ipv4_addr_fini(&val);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_set_nstr_nok)
 {
-	incfgut_ipv4_addr_test_set_nstr_nok("0.0.0.0.");
-	incfgut_ipv4_addr_test_set_nstr_nok("0.0.0.");
-	incfgut_ipv4_addr_test_set_nstr_nok("256.0.0.1");
-	incfgut_ipv4_addr_test_set_nstr_nok("254.300.0.1");
-	incfgut_ipv4_addr_test_set_nstr_nok("254.254.260.1");
-	incfgut_ipv4_addr_test_set_nstr_nok("fail");
-	incfgut_ipv4_addr_test_set_nstr_nok("");
+	incfgut_ipv4_addr_test_set_nstr_nok("0.0.0.0.", 8);
+	incfgut_ipv4_addr_test_set_nstr_nok("0.0.0.", 6);
+	incfgut_ipv4_addr_test_set_nstr_nok("256.0.0.1", 9);
+	incfgut_ipv4_addr_test_set_nstr_nok("254.300.0.1", 11);
+	incfgut_ipv4_addr_test_set_nstr_nok("254.254.260.1", 13);
+	incfgut_ipv4_addr_test_set_nstr_nok("fail", 4);
+	incfgut_ipv4_addr_test_set_nstr_nok("", 0);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv4_addr_pack_assert)
 {
-	struct dpack_encoder enc;
-	const struct in_addr addr;
+	struct dpack_encoder   enc;
+	struct incfg_ipv4_addr addr;
+
+	incfg_ipv4_addr_init(&addr);
 
 	cute_expect_assertion(incfg_ipv4_addr_pack(&addr, NULL));
 	cute_expect_assertion(incfg_ipv4_addr_pack(NULL, &enc));
@@ -375,10 +414,13 @@ CUTE_TEST(incfgut_ipv4_addr_pack_assert)
 
 CUTE_TEST(incfgut_ipv4_addr_pack)
 {
-	struct dpack_encoder enc;
-	char                 buff[INCFG_IPV4_ADDR_PACKSZ + 2];
-	const struct in_addr addr = { .s_addr = ntohl(INADDR_LOOPBACK) };
-	const uint8_t        ref[] = "\xc4\x04\x7f\x00\x00\x01\xff\xff";
+	struct dpack_encoder   enc;
+	char                   buff[INCFG_IPV4_ADDR_PACKSZ + 2];
+	struct incfg_ipv4_addr addr;
+	const uint8_t          ref[] = "\xc4\x04\x7f\x00\x00\x01\xff\xff";
+
+	incfg_ipv4_addr_init(&addr);
+	incfg_ipv4_addr_set_saddr(&addr, INADDR_LOOPBACK);
 
 	cute_check_uint(INCFG_IPV4_ADDR_PACKSZ, equal, 6);
 
@@ -395,14 +437,18 @@ CUTE_TEST(incfgut_ipv4_addr_pack)
 	cute_check_mem(buff, equal, ref, sizeof(ref) - 1);
 
 	dpack_encoder_fini(&enc, DPACK_DONE);
+	incfg_ipv4_addr_fini(&addr);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_pack_short)
 {
-	struct dpack_encoder enc;
-	char                 buff = '\xff';
-	char                 ref = '\xff';
-	const struct in_addr addr = { .s_addr = ntohl(INADDR_LOOPBACK) };
+	struct dpack_encoder   enc;
+	char                   buff = '\xff';
+	char                   ref = '\xff';
+	struct incfg_ipv4_addr addr;
+
+	incfg_ipv4_addr_init(&addr);
+	incfg_ipv4_addr_set_saddr(&addr, INADDR_LOOPBACK);
 
 	dpack_encoder_init_buffer(&enc, &buff, sizeof(buff));
 
@@ -412,14 +458,17 @@ CUTE_TEST(incfgut_ipv4_addr_pack_short)
 	cute_check_mem((void *)&buff, equal, (void *)&ref, sizeof(ref));
 
 	dpack_encoder_fini(&enc, DPACK_ABORT);
+	incfg_ipv4_addr_fini(&addr);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv4_addr_unpack_assert)
 {
-	struct dpack_decoder dec;
-	struct in_addr       addr;
+	struct dpack_decoder   dec;
+	struct incfg_ipv4_addr addr;
+
+	incfg_ipv4_addr_init(&addr);
 
 	cute_expect_assertion(incfg_ipv4_addr_unpack(&addr, NULL));
 	cute_expect_assertion(incfg_ipv4_addr_unpack(NULL, &dec));
@@ -436,26 +485,31 @@ CUTE_TEST(incfgut_ipv4_addr_unpack_assert)
 
 CUTE_TEST(incfgut_ipv4_addr_unpack)
 {
-	struct dpack_decoder dec;
-	const char           buff[] = "\xc4\x04\x7f\x00\x00\x01";
-	struct in_addr       addr;
-	const struct in_addr ref = { .s_addr = ntohl(INADDR_LOOPBACK) };
+	struct dpack_decoder   dec;
+	const char             buff[] = "\xc4\x04\x7f\x00\x00\x01";
+	struct incfg_ipv4_addr addr;
+	const struct in_addr   ref = { .s_addr = htonl(INADDR_LOOPBACK) };
 
-	memset(&addr, 0xff, sizeof(addr));
+	incfg_ipv4_addr_init(&addr);
+
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
 	cute_check_sint(incfg_ipv4_addr_unpack(&addr, &dec), equal, 0);
 	cute_check_uint(dpack_decoder_data_left(&dec), equal, 0);
-	cute_check_mem(&addr, equal, &ref, sizeof(ref));
+	cute_check_mem(&addr.inet, equal, &ref, sizeof(ref));
 
 	dpack_decoder_fini(&dec);
+
+	incfg_ipv4_addr_fini(&addr);
 }
 
 CUTE_TEST(incfgut_ipv4_addr_unpack_short)
 {
-	struct dpack_decoder dec;
-	const char           buff[] = "\xc4\x04";
-	struct in_addr       addr;
+	struct dpack_decoder   dec;
+	const char             buff[] = "\xc4\x04";
+	struct incfg_ipv4_addr addr;
+
+	incfg_ipv4_addr_init(&addr);
 
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
@@ -469,6 +523,8 @@ CUTE_TEST(incfgut_ipv4_addr_unpack_short)
 	 */
 
 	dpack_decoder_fini(&dec);
+
+	incfg_ipv4_addr_fini(&addr);
 }
 
 CUTE_GROUP(incfgut_ipv4_group) = {

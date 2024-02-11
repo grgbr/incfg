@@ -25,27 +25,49 @@
 #ifndef _INCFG_IP_H
 #define _INCFG_IP_H
 
+#include <incfg/priv/cdefs.h>
+
+#if defined(CONFIG_INCFG_IPV4)
 #include <incfg/ipv4.h>
+#endif /* defined(CONFIG_INCFG_IPV4) */
+#if defined(CONFIG_INCFG_IPV6)
 #include <incfg/ipv6.h>
+#endif /* defined(CONFIG_INCFG_IPV6) */
 
 union incfg_ip_addr {
+#if defined(CONFIG_INCFG_IPV4)
 	struct incfg_ipv4_addr ipv4;
+#endif /* defined(CONFIG_INCFG_IPV4) */
+#if defined(CONFIG_INCFG_IPV6)
 	struct incfg_ipv6_addr ipv6;
+#endif /* defined(CONFIG_INCFG_IPV6) */
 };
 
-#define INCFG_ADDR_STRSZ_MAX \
-	STROLL_CONST_MAX(INCFG_IPV4_ADDR_STRSZ_MAX, INCFG_IPV6_ADDR_STRSZ_MAX)
+#if defined(CONFIG_INCFG_IPV4)
+#define INCFG_ADDR_STRSZ_MAX   INCFG_IPV4_ADDR_STRSZ_MAX 
+#define _INCFG_ADDR_PACKSZ_MIN INCFG_IPV4_ADDR_PACKSZ
+#define _INCFG_ADDR_PACKSZ_MAX INCFG_IPV4_ADDR_PACKSZ
+#endif /* defined(CONFIG_INCFG_IPV4) */
+
+#if defined(CONFIG_INCFG_IPV6)
+#undef INCFG_ADDR_STRSZ_MAX
+#define INCFG_ADDR_STRSZ_MAX   INCFG_IPV6_ADDR_STRSZ_MAX 
+#undef _INCFG_ADDR_PACKSZ_MIN
+#define _INCFG_ADDR_PACKSZ_MIN INCFG_IPV6_ADDR_PACKSZ
+#undef _INCFG_ADDR_PACKSZ_MAX
+#define _INCFG_ADDR_PACKSZ_MAX INCFG_IPV6_ADDR_PACKSZ
+#endif /* defined(CONFIG_INCFG_IPV6) */
 
 #define INCFG_ADDR_STRLEN_MAX \
 	(INCFG_ADDR_STRSZ_MAX - 1)
 
 #define INCFG_IP_ADDR_PACKSZ_MIN \
-	(DPACK_UINT8_SIZE_MIN + \
-	 STROLL_CONST_MIN(INCFG_IPV4_ADDR_PACKSZ, INCFG_IPV6_ADDR_PACKSZ))
+	(INCFG_ADDR_TYPE_PACKSZ + _INCFG_ADDR_PACKSZ_MIN)
 
 #define INCFG_IP_ADDR_PACKSZ_MAX \
-	(DPACK_UINT8_SIZE_MAX + \
-	 STROLL_CONST_MAX(INCFG_IPV4_ADDR_PACKSZ, INCFG_IPV6_ADDR_PACKSZ))
+	(INCFG_ADDR_TYPE_PACKSZ + _INCFG_ADDR_PACKSZ_MAX)
+
+#if defined(CONFIG_INCFG_IPV4)
 
 extern const struct in_addr *
 incfg_ip_addr_get_inet4(const union incfg_ip_addr * __restrict addr)
@@ -61,6 +83,10 @@ incfg_ip_addr_set_inet4(union incfg_ip_addr * __restrict  addr,
                         const struct in_addr * __restrict inet)
 	__incfg_export;
 
+#endif /* defined(CONFIG_INCFG_IPV4) */
+
+#if defined(CONFIG_INCFG_IPV6)
+
 extern const struct in6_addr *
 incfg_ip_addr_get_inet6(const union incfg_ip_addr * __restrict addr)
 	__incfg_export;
@@ -70,9 +96,7 @@ incfg_ip_addr_set_inet6(union incfg_ip_addr * __restrict   addr,
                         const struct in6_addr * __restrict inet)
 	__incfg_export;
 
-extern const struct stroll_lvstr *
-incfg_ip_addr_get_str(union incfg_ip_addr * __restrict addr)
-	__incfg_export;
+#endif /* defined(CONFIG_INCFG_IPV6) */
 
 extern int
 incfg_ip_addr_check_str(const char * __restrict string)
@@ -80,6 +104,10 @@ incfg_ip_addr_check_str(const char * __restrict string)
 
 extern int
 incfg_ip_addr_check_nstr(const char * __restrict string, size_t length)
+	__incfg_export;
+
+extern const struct stroll_lvstr *
+incfg_ip_addr_get_str(union incfg_ip_addr * __restrict addr)
 	__incfg_export;
 
 extern int

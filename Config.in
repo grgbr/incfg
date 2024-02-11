@@ -49,8 +49,7 @@ config INCFG_DNAME
 config INCFG_IP
 	bool "IP support"
 	default y
-	select INCFG_IPV4
-	select INCFG_IPV6
+	depends on INCFG_IPV4 || INCFG_IPV6
 	help
 	  Build incfg library with support for IP address expressed as
 	  either IPv4 or IPv6 address.
