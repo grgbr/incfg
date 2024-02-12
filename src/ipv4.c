@@ -100,6 +100,8 @@ incfg_ipv4_addr_check_nstr(const char * __restrict string, size_t length)
 	if (!length || (length > INCFG_IPV4_ADDR_STRLEN_MAX))
 		return -EINVAL;
 
+	incfg_assert_api(strnlen(string, length) == length);
+
 	if (string[length] != '\0') {
 		char str[INCFG_IPV4_ADDR_STRSZ_MAX];
 		
@@ -178,6 +180,8 @@ incfg_ipv4_addr_set_nstr(struct incfg_ipv4_addr * __restrict addr,
 
 	if (!length || (length > INCFG_IPV4_ADDR_STRLEN_MAX))
 		return -EINVAL;
+
+	incfg_assert_api(strnlen(string, length) == length);
 
 	if (string[length] != '\0') {
 		char str[INCFG_IPV4_ADDR_STRSZ_MAX];
