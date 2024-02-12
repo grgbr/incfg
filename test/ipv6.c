@@ -183,7 +183,6 @@ CUTE_TEST(incfgut_ipv6_addr_check_str_nok)
 	incfgut_ipv6_addr_test_check_str_nok("");
 }
 
-#if 0
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv6_addr_check_nstr_assert)
@@ -243,9 +242,10 @@ CUTE_TEST(incfgut_ipv6_addr_check_nstr_nok)
 
 CUTE_TEST(incfgut_ipv6_addr_set_str_assert)
 {
-	struct in6_addr addr;
-	const char *    str = str;
+	struct incfg_ipv6_addr addr;
+	const char *           str = str;
 
+	incfg_ipv6_addr_init(&addr);
 	cute_expect_assertion(incfg_ipv6_addr_set_str(&addr, NULL));
 	cute_expect_assertion(incfg_ipv6_addr_set_str(NULL, str));
 }
@@ -262,14 +262,18 @@ CUTE_TEST(incfgut_ipv6_addr_set_str_assert)
 static void
 incfgut_ipv6_addr_test_set_str_ok(const char * addr)
 {
-	struct in6_addr val;
-	struct in6_addr ref;
+	struct incfg_ipv6_addr val;
+	struct in6_addr        ref;
+
+	incfg_ipv6_addr_init(&val);
 
 	cute_check_sint(inet_pton(AF_INET6, addr, &ref), equal, 1);
 
 	cute_check_sint(incfg_ipv6_addr_set_str(&val, addr), equal, 0);
 
-	cute_check_mem(&val, equal, &ref, sizeof(ref));
+	cute_check_mem(&val.inet, equal, &ref, sizeof(ref));
+
+	incfg_ipv6_addr_fini(&val);
 }
 
 CUTE_TEST(incfgut_ipv6_addr_set_str_ok)
@@ -285,9 +289,11 @@ CUTE_TEST(incfgut_ipv6_addr_set_str_ok)
 static void
 incfgut_ipv6_addr_test_set_str_nok(const char * addr)
 {
-	struct in6_addr val;
+	struct incfg_ipv6_addr val;
 
+	incfg_ipv6_addr_init(&val);
 	cute_check_sint(incfg_ipv6_addr_set_str(&val, addr), equal, -EINVAL);
+	incfg_ipv6_addr_fini(&val);
 }
 
 CUTE_TEST(incfgut_ipv6_addr_set_str_nok)
@@ -307,12 +313,12 @@ CUTE_TEST(incfgut_ipv6_addr_set_str_nok)
 
 CUTE_TEST(incfgut_ipv6_addr_set_nstr_assert)
 {
-	struct in6_addr addr;
-	const char *    str = str;
+	struct incfg_ipv6_addr addr;
+	const char *           str = str;
 
+	incfg_ipv6_addr_init(&addr);
 	cute_expect_assertion(incfg_ipv6_addr_set_nstr(&addr, NULL, 1));
 	cute_expect_assertion(incfg_ipv6_addr_set_nstr(NULL, str, 1));
-	cute_expect_assertion(incfg_ipv6_addr_set_nstr(&addr, "too long", 1));
 }
 
 #else  /* !defined(CONFIG_INCFG_ASSERT_API) */
@@ -325,59 +331,78 @@ CUTE_TEST(incfgut_ipv6_addr_set_nstr_assert)
 #endif /* defined(CONFIG_INCFG_ASSERT_API) */
 
 static void
-incfgut_ipv6_addr_test_set_nstr_ok(const char * addr)
+incfgut_ipv6_addr_test_set_nstr_ok(const char * addr, size_t len)
 {
-	struct in6_addr val;
-	struct in6_addr ref;
+	struct incfg_ipv6_addr val;
+	char                   str[INET6_ADDRSTRLEN];
+	struct in6_addr        ref;
 
-	cute_check_sint(inet_pton(AF_INET6, addr, &ref), equal, 1);
+	incfg_ipv6_addr_init(&val);
 
-	cute_check_sint(incfg_ipv6_addr_set_nstr(&val, addr, strlen(addr)),
-	                equal,
-	                0);
+	memcpy(str, addr, len);
+	str[len] = '\0';
+	cute_check_sint(inet_pton(AF_INET6, str, &ref), equal, 1);
 
-	cute_check_mem(&val, equal, &ref, sizeof(ref));
+	cute_check_sint(incfg_ipv6_addr_set_nstr(&val, addr, len), equal, 0);
+
+	cute_check_mem(&val.inet, equal, &ref, sizeof(ref));
+
+	incfg_ipv6_addr_fini(&val);
 }
+
 
 CUTE_TEST(incfgut_ipv6_addr_set_nstr_ok)
 {
-	incfgut_ipv6_addr_test_set_nstr_ok("::");
-	incfgut_ipv6_addr_test_set_nstr_ok("::1");
-	incfgut_ipv6_addr_test_set_nstr_ok("ff02::1");
-	incfgut_ipv6_addr_test_set_nstr_ok("ff05::2");
-	incfgut_ipv6_addr_test_set_nstr_ok("2002:c000:0204::");
-	incfgut_ipv6_addr_test_set_nstr_ok("::ffff:192.0.2.4");
+	incfgut_ipv6_addr_test_set_nstr_ok("::", 2);
+	incfgut_ipv6_addr_test_set_nstr_ok("::1", 3);
+	incfgut_ipv6_addr_test_set_nstr_ok("ff02::1", 7);
+	incfgut_ipv6_addr_test_set_nstr_ok("ff05::2", 7);
+	incfgut_ipv6_addr_test_set_nstr_ok("2002:c000:0204::", 16);
+	incfgut_ipv6_addr_test_set_nstr_ok("::ffff:192.0.2.4", 16);
+
+	incfgut_ipv6_addr_test_set_nstr_ok("::xxxx", 2);
+	incfgut_ipv6_addr_test_set_nstr_ok("::1xxxx", 3);
+	incfgut_ipv6_addr_test_set_nstr_ok("ff02::1xxxx", 7);
+	incfgut_ipv6_addr_test_set_nstr_ok("ff05::2xxxx", 7);
+	incfgut_ipv6_addr_test_set_nstr_ok("2002:c000:0204::xxxx", 16);
+	incfgut_ipv6_addr_test_set_nstr_ok("::ffff:192.0.2.4xxxx", 16);
 }
 
 static void
-incfgut_ipv6_addr_test_set_nstr_nok(const char * addr)
+incfgut_ipv6_addr_test_set_nstr_nok(const char * addr, size_t len)
 {
-	struct in6_addr val;
+	struct incfg_ipv6_addr val;
 
-	cute_check_sint(incfg_ipv6_addr_set_nstr(&val, addr, strlen(addr)),
+	incfg_ipv6_addr_init(&val);
+
+	cute_check_sint(incfg_ipv6_addr_set_nstr(&val, addr, len),
 	                equal,
 	                -EINVAL);
+
+	incfg_ipv6_addr_fini(&val);
 }
 
 CUTE_TEST(incfgut_ipv6_addr_set_nstr_nok)
 {
-	incfgut_ipv6_addr_test_set_nstr_nok(":");
-	incfgut_ipv6_addr_test_set_nstr_nok(":::");
-	incfgut_ipv6_addr_test_set_nstr_nok("ff02:::");
-	incfgut_ipv6_addr_test_set_nstr_nok("fffff::2");
-	incfgut_ipv6_addr_test_set_nstr_nok("f:f:f:f:f:f:f:f:f");
-	incfgut_ipv6_addr_test_set_nstr_nok("f:");
-	incfgut_ipv6_addr_test_set_nstr_nok(":f");
-	incfgut_ipv6_addr_test_set_nstr_nok("fail");
-	incfgut_ipv6_addr_test_set_nstr_nok("");
+	incfgut_ipv6_addr_test_set_nstr_nok(":", 1);
+	incfgut_ipv6_addr_test_set_nstr_nok(":::", 3);
+	incfgut_ipv6_addr_test_set_nstr_nok("ff02:::", 7);
+	incfgut_ipv6_addr_test_set_nstr_nok("fffff::2", 8);
+	incfgut_ipv6_addr_test_set_nstr_nok("f:f:f:f:f:f:f:f:f", 17);
+	incfgut_ipv6_addr_test_set_nstr_nok("f:", 2);
+	incfgut_ipv6_addr_test_set_nstr_nok(":f", 2);
+	incfgut_ipv6_addr_test_set_nstr_nok("fail", 4);
+	incfgut_ipv6_addr_test_set_nstr_nok("", 0);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv6_addr_pack_assert)
 {
-	struct dpack_encoder  enc;
-	const struct in6_addr addr;
+	struct dpack_encoder   enc;
+	struct incfg_ipv6_addr addr;
+
+	incfg_ipv6_addr_init(&addr);
 
 	cute_expect_assertion(incfg_ipv6_addr_pack(&addr, NULL));
 	cute_expect_assertion(incfg_ipv6_addr_pack(NULL, &enc));
@@ -394,12 +419,15 @@ CUTE_TEST(incfgut_ipv6_addr_pack_assert)
 
 CUTE_TEST(incfgut_ipv6_addr_pack)
 {
-	struct dpack_encoder  enc;
-	char                  buff[INCFG_IPV6_ADDR_PACKSZ + 2];
-	const struct in6_addr addr = in6addr_loopback;
-	const uint8_t         ref[] = "\xc4\x10"
-	                              "\x00\x00\x00\x00\x00\x00\x00\x00"
-	                              "\x00\x00\x00\x00\x00\x00\x00\x01";
+	struct dpack_encoder   enc;
+	char                   buff[INCFG_IPV6_ADDR_PACKSZ + 2];
+	struct incfg_ipv6_addr addr;
+	const uint8_t          ref[] = "\xc4\x10"
+	                               "\x00\x00\x00\x00\x00\x00\x00\x00"
+	                               "\x00\x00\x00\x00\x00\x00\x00\x01";
+
+	incfg_ipv6_addr_init(&addr);
+	incfg_ipv6_addr_set_inet(&addr, &in6addr_loopback);
 
 	cute_check_uint(INCFG_IPV6_ADDR_PACKSZ, equal, 18);
 
@@ -416,14 +444,18 @@ CUTE_TEST(incfgut_ipv6_addr_pack)
 	cute_check_mem(buff, equal, ref, sizeof(ref) - 1);
 
 	dpack_encoder_fini(&enc, DPACK_DONE);
+	incfg_ipv6_addr_fini(&addr);
 }
 
 CUTE_TEST(incfgut_ipv6_addr_pack_short)
 {
-	struct dpack_encoder  enc;
-	char                  buff = '\xff';
-	char                  ref = '\xff';
-	const struct in6_addr addr = in6addr_loopback;
+	struct dpack_encoder   enc;
+	char                   buff = '\xff';
+	char                   ref = '\xff';
+	struct incfg_ipv6_addr addr;
+
+	incfg_ipv6_addr_init(&addr);
+	incfg_ipv6_addr_set_inet(&addr, &in6addr_loopback);
 
 	dpack_encoder_init_buffer(&enc, &buff, sizeof(buff));
 
@@ -433,14 +465,17 @@ CUTE_TEST(incfgut_ipv6_addr_pack_short)
 	cute_check_mem((void *)&buff, equal, (void *)&ref, sizeof(ref));
 
 	dpack_encoder_fini(&enc, DPACK_ABORT);
+	incfg_ipv6_addr_fini(&addr);
 }
 
 #if  defined(CONFIG_INCFG_ASSERT_API)
 
 CUTE_TEST(incfgut_ipv6_addr_unpack_assert)
 {
-	struct dpack_decoder dec;
-	struct in6_addr      addr;
+	struct dpack_decoder   dec;
+	struct incfg_ipv6_addr addr;
+
+	incfg_ipv6_addr_init(&addr);
 
 	cute_expect_assertion(incfg_ipv6_addr_unpack(&addr, NULL));
 	cute_expect_assertion(incfg_ipv6_addr_unpack(NULL, &dec));
@@ -457,29 +492,33 @@ CUTE_TEST(incfgut_ipv6_addr_unpack_assert)
 
 CUTE_TEST(incfgut_ipv6_addr_unpack)
 {
-	struct dpack_decoder  dec;
-	const char            buff[] = "\xc4\x10"
-	                               "\x00\x00\x00\x00\x00\x00\x00\x00"
-	                               "\x00\x00\x00\x00\x00\x00\x00\x01";
-	struct in6_addr       addr;
-	const struct in6_addr ref = in6addr_loopback;
+	struct dpack_decoder   dec;
+	const char             buff[] = "\xc4\x10"
+	                                "\x00\x00\x00\x00\x00\x00\x00\x00"
+	                                "\x00\x00\x00\x00\x00\x00\x00\x01";
+	struct incfg_ipv6_addr addr;
 
-	memset(&addr, 0xff, sizeof(addr));
+	incfg_ipv6_addr_init(&addr);
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
 	cute_check_sint(incfg_ipv6_addr_unpack(&addr, &dec), equal, 0);
 	cute_check_uint(dpack_decoder_data_left(&dec), equal, 0);
-	cute_check_mem(&addr, equal, &ref, sizeof(ref));
+	cute_check_mem(&addr.inet,
+	               equal,
+	               &in6addr_loopback,
+	               sizeof(in6addr_loopback));
 
 	dpack_decoder_fini(&dec);
+	incfg_ipv6_addr_fini(&addr);
 }
 
 CUTE_TEST(incfgut_ipv6_addr_unpack_short)
 {
-	struct dpack_decoder dec;
-	const char           buff[] = "\xc4\x10";
-	struct in6_addr      addr;
+	struct dpack_decoder   dec;
+	const char             buff[] = "\xc4\x10";
+	struct incfg_ipv6_addr addr;
 
+	incfg_ipv6_addr_init(&addr);
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
 	cute_check_sint(incfg_ipv6_addr_unpack(&addr, &dec), equal, -EPROTO);
@@ -492,8 +531,8 @@ CUTE_TEST(incfgut_ipv6_addr_unpack_short)
 	 */
 
 	dpack_decoder_fini(&dec);
+	incfg_ipv6_addr_fini(&addr);
 }
-#endif
 
 CUTE_GROUP(incfgut_ipv6_group) = {
 	CUTE_REF(incfgut_ipv6_addr_set_inet_assert),
@@ -504,7 +543,6 @@ CUTE_GROUP(incfgut_ipv6_group) = {
 	CUTE_REF(incfgut_ipv6_addr_check_str_assert),
 	CUTE_REF(incfgut_ipv6_addr_check_str_ok),
 	CUTE_REF(incfgut_ipv6_addr_check_str_nok),
-#if 0
 	CUTE_REF(incfgut_ipv6_addr_check_nstr_assert),
 	CUTE_REF(incfgut_ipv6_addr_check_nstr_ok),
 	CUTE_REF(incfgut_ipv6_addr_check_nstr_nok),
@@ -523,7 +561,6 @@ CUTE_GROUP(incfgut_ipv6_group) = {
 	CUTE_REF(incfgut_ipv6_addr_unpack_assert),
 	CUTE_REF(incfgut_ipv6_addr_unpack),
 	CUTE_REF(incfgut_ipv6_addr_unpack_short)
-#endif
 };
 
 CUTE_SUITE_EXTERN(incfgut_ipv6_suite,
