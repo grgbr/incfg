@@ -46,7 +46,7 @@ incfg_ipv4_addr_set_nl(struct incfg_ipv4_addr * __restrict addr,
 {
 	incfg_assert_intern(incfg_logger);
 	incfg_assert_intern(addr);
-	incfg_assert_intern(addr->base.type == INCFG_ADDR_IPV4_TYPE);
+	incfg_assert_intern(addr->base.type <= INCFG_ADDR_TYPE_NR);
 
 	if (addr->inet.s_addr != saddr) {
 		stroll_lvstr_drop(&addr->base.lvstr);
@@ -215,7 +215,7 @@ incfg_ipv4_addr_unpack(struct incfg_ipv4_addr * __restrict addr,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
-	incfg_assert_api(addr->base.type == INCFG_ADDR_IPV4_TYPE);
+	incfg_assert_api(addr->base.type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(decoder);
 
 	ssize_t   err;

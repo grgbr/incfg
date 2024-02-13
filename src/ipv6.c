@@ -183,7 +183,7 @@ incfg_ipv6_addr_unpack(struct incfg_ipv6_addr * __restrict addr,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
-	incfg_assert_api(addr->base.type == INCFG_ADDR_IPV6_TYPE);
+	incfg_assert_api(addr->base.type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(decoder);
 
 	ssize_t         err;

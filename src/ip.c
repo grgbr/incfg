@@ -289,7 +289,7 @@ incfg_ip_addr_unpack(union incfg_ip_addr * __restrict addr,
 #endif /* defined(CONFIG_INCFG_IPV4) */
 
 	default:
-		return -EINVAL;
+		return -ENOMSG;
 	}
 
 	unreachable();

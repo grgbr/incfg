@@ -20,6 +20,7 @@
 #define _INCFG_ADDR_H
 
 #include <incfg/cdefs.h>
+#include <dpack/scalar.h>
 #include <dpack/lvstr.h>
 
 enum incfg_addr_type {
