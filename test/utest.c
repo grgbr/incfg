@@ -17,6 +17,35 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#if defined(CONFIG_INCFG_IPV6)
+
+/*
+ * Well known IPv6 addresses borrowed from <linux>/include/linux/in6.h
+ *
+ * NOTE: Be aware the IN6ADDR_* constants and in6addr_* variables are defined
+ * in network byte order, not in host byte order as are the IPv4 equivalents.
+ */
+
+#define IN6ADDR_LINKLOCAL_ALLNODES_INIT \
+	{ { { 0xff,2,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
+
+const struct in6_addr
+in6addr_linklocal_allnodes = IN6ADDR_LINKLOCAL_ALLNODES_INIT;
+
+#define IN6ADDR_LINKLOCAL_ALLROUTERS_INIT \
+	{ { { 0xff,2,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
+
+const struct in6_addr
+in6addr_linklocal_allrouters = IN6ADDR_LINKLOCAL_ALLROUTERS_INIT;
+
+#define IN6ADDR_SITELOCAL_ALLROUTERS_INIT \
+	{ { { 0xff,5,0,0,0,0,0,0,0,0,0,0,0,0,0,2 } } }
+
+const struct in6_addr
+in6addr_sitelocal_allrouters = IN6ADDR_SITELOCAL_ALLROUTERS_INIT;
+
+#endif /* defined(CONFIG_INCFG_IPV6) */
+
 #if defined(CONFIG_INCFG_VALGRIND)
 #include <valgrind/valgrind.h>
 #endif
@@ -286,18 +315,23 @@ incfgut_teardown(void)
 	incfg_fini();
 }
 
+#if defined(CONFIG_INCFG_DNAME)
+extern CUTE_SUITE_DECL(incfgut_dname_suite);
+#endif
 #if defined(CONFIG_INCFG_IPV4)
 extern CUTE_SUITE_DECL(incfgut_ipv4_suite);
 #endif
 #if defined(CONFIG_INCFG_IPV6)
 extern CUTE_SUITE_DECL(incfgut_ipv6_suite);
 #endif
-#if defined(CONFIG_INCFG_DNAME)
-extern CUTE_SUITE_DECL(incfgut_dname_suite);
+#if defined(CONFIG_INCFG_IP)
+extern CUTE_SUITE_DECL(incfgut_ip_suite);
 #endif
 
-
 CUTE_GROUP(incfgut_group) = {
+#if defined(CONFIG_INCFG_DNAME)
+	CUTE_REF(incfgut_dname_suite),
+#endif
 #if defined(CONFIG_INCFG_IPV4)
 	CUTE_REF(incfgut_ipv4_suite),
 #endif
@@ -305,7 +339,7 @@ CUTE_GROUP(incfgut_group) = {
 	CUTE_REF(incfgut_ipv6_suite),
 #endif
 #if defined(CONFIG_INCFG_DNAME)
-	CUTE_REF(incfgut_dname_suite),
+	CUTE_REF(incfgut_ip_suite),
 #endif
 };
 

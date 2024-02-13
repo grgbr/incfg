@@ -9,6 +9,8 @@ static struct incfg_regex incfg_dname_regex;
 	"(?:[a-zA-Z0-9_](?:[a-zA-Z0-9\\-_]){0,61})?[a-zA-Z0-9]\\.?)" \
 	"|\\."
 
+#if defined(CONFIG_INCFG_ASSERT_API)
+
 static int
 incfg_dname_validate(const struct incfg_addr * __restrict dname)
 {
@@ -19,6 +21,8 @@ incfg_dname_validate(const struct incfg_addr * __restrict dname)
 	return incfg_dname_ncheck(stroll_lvstr_cstr(&dname->lvstr),
 	                          stroll_lvstr_len(&dname->lvstr));
 }
+
+#endif /* defined(CONFIG_INCFG_ASSERT_API) */
 
 int
 incfg_dname_check(const char * __restrict string)

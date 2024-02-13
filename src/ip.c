@@ -301,6 +301,7 @@ incfg_ip_addr_init(union incfg_ip_addr * __restrict addr)
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
 
+	memset(addr, 0, sizeof(*addr));
 	incfg_ip2addr(addr)->type = INCFG_ADDR_TYPE_NR;
 	stroll_lvstr_init(&incfg_ip2addr(addr)->lvstr);
 }

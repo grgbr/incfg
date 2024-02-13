@@ -40,6 +40,7 @@ checkbins           := incfg-utest
 
 incfg-utest-objs    += $(call kconf_enabled,INCFG_IPV4,ipv4.o)
 incfg-utest-objs    += $(call kconf_enabled,INCFG_IPV6,ipv6.o)
+incfg-utest-objs    += $(call kconf_enabled,INCFG_IP,ip.o)
 incfg-utest-objs    += $(call kconf_enabled,INCFG_DNAME,dname.o)
 incfg-utest-cflags  := $(test-cflags)
 incfg-utest-ldflags := $(test-ldflags)

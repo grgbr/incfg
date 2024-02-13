@@ -31,7 +31,8 @@
 
 #else  /* !defined(CONFIG_INCFG_ASSERT_INTERN) */
 
-#define incfg_assert_intern(_cond)
+#define incfg_assert_intern(_cond) \
+	do {} while (0)
 
 #endif /* defined(CONFIG_INCFG_ASSERT_INTERN) */
 

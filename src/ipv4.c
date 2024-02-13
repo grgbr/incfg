@@ -238,7 +238,7 @@ incfg_ipv4_addr_init(struct incfg_ipv4_addr * __restrict addr)
 
 	addr->base.type = INCFG_ADDR_IPV4_TYPE;
 	stroll_lvstr_init(&addr->base.lvstr);
-	addr->inet.s_addr = htonl(INADDR_ANY);
+	memset(&addr->inet, 0, sizeof(addr->inet));
 }
 
 void

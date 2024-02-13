@@ -208,7 +208,7 @@ incfg_ipv6_addr_init(struct incfg_ipv6_addr * __restrict addr)
 
 	addr->base.type = INCFG_ADDR_IPV6_TYPE;
 	stroll_lvstr_init(&addr->base.lvstr);
-	addr->inet = in6addr_any;
+	memset(&addr->inet, 0, sizeof(addr->inet));
 }
 
 void
