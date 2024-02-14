@@ -859,8 +859,8 @@ INCFGUT_NOIPV6_TEST(incfgut_ip_addr_check_str6_ok);
 INCFGUT_NOIPV6_TEST(incfgut_ip_addr_check_str6_nok);
 INCFGUT_NOIPV6_TEST(incfgut_ip_addr_check_nstr6_ok);
 INCFGUT_NOIPV6_TEST(incfgut_ip_addr_check_nstr6_nok);
-INCFGUT_NOIPV6_TEST(incfgut_ip_addr_set_str6_ok),
-INCFGUT_NOIPV6_TEST(incfgut_ip_addr_check_str6_nok),
+INCFGUT_NOIPV6_TEST(incfgut_ip_addr_set_str6_ok);
+INCFGUT_NOIPV6_TEST(incfgut_ip_addr_set_str6_nok);
 INCFGUT_NOIPV6_TEST(incfgut_ip_addr_set_nstr6_ok);
 INCFGUT_NOIPV6_TEST(incfgut_ip_addr_set_nstr6_nok);
 INCFGUT_NOIPV6_TEST(incfgut_ip_addr_pack6);
