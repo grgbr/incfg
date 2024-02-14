@@ -23,6 +23,7 @@ headers   += $(call kconf_enabled,INCFG_IPV4,$(PACKAGE)/ipv4.h)
 headers   += $(call kconf_enabled,INCFG_IPV6,$(PACKAGE)/ipv6.h)
 headers   += $(call kconf_enabled,INCFG_IP,$(PACKAGE)/ip.h)
 headers   += $(call kconf_enabled,INCFG_DNAME,$(PACKAGE)/dname.h)
+headers   += $(call kconf_enabled,INCFG_HOST,$(PACKAGE)/host.h)
 
 subdirs   := src
 

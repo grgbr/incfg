@@ -432,7 +432,7 @@ CUTE_TEST(incfgut_ip_addr_unpack4_unxpct)
 
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
-	cute_check_sint(incfg_ip_addr_unpack(&addr, &dec), equal, -ENOMSG);
+	cute_check_sint(incfg_ip_addr_unpack(&addr, &dec), equal, -EINVAL);
 	cute_check_uint(dpack_decoder_data_left(&dec), equal, 6);
 
 	/*
@@ -836,7 +836,7 @@ CUTE_TEST(incfgut_ip_addr_unpack6_unxpct)
 
 	dpack_decoder_init_buffer(&dec, buff, sizeof(buff) - 1);
 
-	cute_check_sint(incfg_ip_addr_unpack(&addr, &dec), equal, -ENOMSG);
+	cute_check_sint(incfg_ip_addr_unpack(&addr, &dec), equal, -EINVAL);
 	cute_check_uint(dpack_decoder_data_left(&dec), equal, 6);
 
 	/*

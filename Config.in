@@ -21,6 +21,14 @@ config INCFG_ASSERT_INTERN
 	  Build incfg library with internal assertions enabled to check for
 	  internal incfg behavioral consistency.
 
+config INCFG_DEBUG
+	bool "Debug"
+	select INCFG_ASSERT_API
+	select INCFG_ASSERT_INTERN
+	default n
+	help
+	  Build incfg library with internal debugging support enabled.
+
 config INCFG_ENABLED
 	bool
 	default n
@@ -39,13 +47,6 @@ config INCFG_IPV6
 	help
 	  Build incfg library with support for IPv6.
 
-config INCFG_DNAME
-	bool "Domain name support"
-	default y
-	select INCFG_ENABLED
-	help
-	  Build incfg library with support for Domain names.
-
 config INCFG_IP
 	bool "IP support"
 	default y
@@ -54,13 +55,20 @@ config INCFG_IP
 	  Build incfg library with support for IP address expressed as
 	  either IPv4 or IPv6 address.
 
-config INCFG_DEBUG
-	bool "Debug"
-	select INCFG_ASSERT_API
-	select INCFG_ASSERT_INTERN
-	default n
+config INCFG_DNAME
+	bool "Domain name support"
+	default y
+	select INCFG_ENABLED
 	help
-	  Build incfg library with internal debugging support enabled.
+	  Build incfg library with support for Domain names.
+
+config INCFG_HOST
+	bool "Host support"
+	default y
+	depends on INCFG_IP || INCFG_DNAME
+	help
+	  Build incfg library with support for network address, i.e., either an
+	  IP address or a DNS domain name.
 
 config INCFG_UTEST
 	bool "Unit tests"

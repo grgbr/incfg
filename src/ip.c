@@ -36,6 +36,7 @@ incfg_ip_addr_set_saddr4(union incfg_ip_addr * __restrict addr, in_addr_t saddr)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
+	incfg_assert_api(incfg_ip2addr(addr)->type <= INCFG_ADDR_TYPE_NR);
 
 	incfg_ip2addr(addr)->type = INCFG_ADDR_IPV4_TYPE;
 	incfg_ipv4_addr_set_saddr(&addr->ipv4, saddr);
@@ -47,6 +48,7 @@ incfg_ip_addr_set_inet4(union incfg_ip_addr * __restrict  addr,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
+	incfg_assert_api(incfg_ip2addr(addr)->type <= INCFG_ADDR_TYPE_NR);
 
 	incfg_ip2addr(addr)->type = INCFG_ADDR_IPV4_TYPE;
 	incfg_ipv4_addr_set_inet(&addr->ipv4, inet);
@@ -72,6 +74,7 @@ incfg_ip_addr_set_inet6(union incfg_ip_addr * __restrict   addr,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
+	incfg_assert_api(incfg_ip2addr(addr)->type <= INCFG_ADDR_TYPE_NR);
 
 	incfg_ip2addr(addr)->type = INCFG_ADDR_IPV6_TYPE;
 	incfg_ipv6_addr_set_inet(&addr->ipv6, inet);
@@ -260,6 +263,7 @@ incfg_ip_addr_unpack(union incfg_ip_addr * __restrict addr,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(addr);
+	incfg_assert_api(incfg_ip2addr(addr)->type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(decoder);
 
 	int     err;
@@ -289,7 +293,7 @@ incfg_ip_addr_unpack(union incfg_ip_addr * __restrict addr,
 #endif /* defined(CONFIG_INCFG_IPV4) */
 
 	default:
-		return -ENOMSG;
+		return -EINVAL;
 	}
 
 	unreachable();

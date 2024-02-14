@@ -27,6 +27,11 @@
 
 #include <incfg/priv/cdefs.h>
 
+#if !defined(CONFIG_INCFG_IPV4) && !defined(CONFIG_INCFG_IPV6)
+#error Invalid build configuration: IP address support requires either IPv4 or \
+       or IPv6 build configuration options !
+#endif /* !defined(CONFIG_INCFG_DNAME) && !defined(CONFIG_INCFG_IP) */
+
 #if defined(CONFIG_INCFG_IPV4)
 #include <incfg/ipv4.h>
 #endif /* defined(CONFIG_INCFG_IPV4) */

@@ -35,6 +35,7 @@ libincfg.so-objs      += $(call kconf_enabled,INCFG_IPV4,shared/ipv4.o)
 libincfg.so-objs      += $(call kconf_enabled,INCFG_IPV6,shared/ipv6.o)
 libincfg.so-objs      += $(call kconf_enabled,INCFG_IP,shared/ip.o)
 libincfg.so-objs      += $(call kconf_enabled,INCFG_DNAME,shared/dname.o)
+libincfg.so-objs      += $(call kconf_enabled,INCFG_HOST,shared/host.o)
 libincfg.so-cflags    := $(filter-out -fpie -fPIE,$(common-cflags)) -fpic
 libincfg.so-ldflags   := $(filter-out -fpie -fPIE,$(common-ldflags)) \
                          -shared -fpic -Bsymbolic -Wl,-soname,libincfg.so
@@ -46,6 +47,7 @@ libincfg.a-objs       += $(call kconf_enabled,INCFG_IPV4,static/ipv4.o)
 libincfg.a-objs       += $(call kconf_enabled,INCFG_IPV6,static/ipv6.o)
 libincfg.a-objs       += $(call kconf_enabled,INCFG_IP,static/ip.o)
 libincfg.a-objs       += $(call kconf_enabled,INCFG_DNAME,static/dname.o)
+libincfg.a-objs       += $(call kconf_enabled,INCFG_HOST,static/host.o)
 libincfg.a-cflags     := $(common-cflags)
 
 # vim: filetype=make :
