@@ -327,6 +327,10 @@ extern CUTE_SUITE_DECL(incfgut_ipv6_suite);
 #if defined(CONFIG_INCFG_IP)
 extern CUTE_SUITE_DECL(incfgut_ip_suite);
 #endif
+#if defined(CONFIG_INCFG_HOST)
+extern CUTE_SUITE_DECL(incfgut_host_suite);
+#endif
+
 
 CUTE_GROUP(incfgut_group) = {
 #if defined(CONFIG_INCFG_DNAME)
@@ -340,6 +344,9 @@ CUTE_GROUP(incfgut_group) = {
 #endif
 #if defined(CONFIG_INCFG_DNAME)
 	CUTE_REF(incfgut_ip_suite),
+#endif
+#if defined(CONFIG_INCFG_HOST)
+	CUTE_REF(incfgut_host_suite),
 #endif
 };
 

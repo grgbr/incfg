@@ -14,6 +14,12 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 
+#define INCFGUT_NOASSERT_TEST(_name) \
+	CUTE_TEST(_name) \
+	{ \
+		cute_skip("assertion support disabled"); \
+	}
+
 #if defined(CONFIG_INCFG_IPV6)
 
 extern const struct in6_addr in6addr_linklocal_allnodes;

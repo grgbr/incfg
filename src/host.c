@@ -6,8 +6,7 @@
  ******************************************************************************/
 
 #include "incfg/host.h"
-#include "common.h"
-#include <dpack/codec.h>
+#include "ip.h"
 
 static inline struct incfg_addr *
 incfg_host2addr(const union incfg_host * __restrict host)
@@ -260,24 +259,38 @@ incfg_host_unpack(union incfg_host * __restrict host,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(host);
-	incfg_assert_api(incfg_host2addr(host)->type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(decoder);
 
-	int err = -EINVAL;
+	int     err;
+	uint8_t type;
 
-#if defined(CONFIG_INCFG_IP)
-	err = incfg_ip_addr_unpack(&host->ip, decoder);
-	if (!err)
-		return 0;
-	else if (err != -EINVAL)
+	err = dpack_decode_uint8(decoder, &type);
+	if (err)
 		return err;
+
+	switch ((enum incfg_addr_type)type) {
+#if defined(CONFIG_INCFG_IP)
+	case INCFG_ADDR_IPV4_TYPE:
+	case INCFG_ADDR_IPV6_TYPE:
+		return incfg_ip_addr_decode(&host->ip,
+		                            (enum incfg_addr_type)type,
+		                            decoder);
 #endif /* defined(CONFIG_INCFG_IP) */
 
 #if defined(CONFIG_INCFG_DNAME)
-	return incfg_dname_unpack(&host->dname, decoder);
+	case INCFG_ADDR_DNAME_TYPE:
+		err = incfg_dname_unpack(&host->dname, decoder);
+		if (err)
+			return err;
+		incfg_host2addr(host)->type = INCFG_ADDR_DNAME_TYPE;
+		return 0;
 #endif /* defined(CONFIG_INCFG_DNAME) */
 
-	return err;
+	default:
+		return -EINVAL;
+	}
+
+	unreachable();
 }
 
 int
@@ -286,24 +299,42 @@ incfg_host_unpackn_check(union incfg_host * __restrict host,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(host);
-	incfg_assert_api(incfg_host2addr(host)->type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(decoder);
 
-	int err = -EINVAL;
+	int     err;
+	uint8_t type;
 
-#if defined(CONFIG_INCFG_IP)
-	err = incfg_ip_addr_unpackn_check(&host->ip, decoder);
-	if (!err)
-		return 0;
-	else if (err != -EINVAL)
+	err = dpack_decode_uint8(decoder, &type);
+	if (err)
 		return err;
+
+	switch ((enum incfg_addr_type)type) {
+#if defined(CONFIG_INCFG_IP)
+	case INCFG_ADDR_IPV4_TYPE:
+	case INCFG_ADDR_IPV6_TYPE:
+		/*
+		 * Check and no check versions of IP address unpacking are
+		 * identical...
+		 */
+		return incfg_ip_addr_decode(&host->ip,
+		                            (enum incfg_addr_type)type,
+		                            decoder);
 #endif /* defined(CONFIG_INCFG_IP) */
 
 #if defined(CONFIG_INCFG_DNAME)
-	return incfg_dname_unpackn_check(&host->dname, decoder);
+	case INCFG_ADDR_DNAME_TYPE:
+		err = incfg_dname_unpackn_check(&host->dname, decoder);
+		if (err)
+			return err;
+		incfg_host2addr(host)->type = INCFG_ADDR_DNAME_TYPE;
+		return 0;
 #endif /* defined(CONFIG_INCFG_DNAME) */
 
-	return err;
+	default:
+		return -EINVAL;
+	}
+
+	unreachable();
 }
 
 void

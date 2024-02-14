@@ -13,12 +13,6 @@
 #include <cute/check.h>
 #include <cute/expect.h>
 
-#define INCFGUT_NOASSERT_TEST(_name) \
-	CUTE_TEST(_name) \
-	{ \
-		cute_skip("assertion support disabled"); \
-	}
-
 #define INCFGUT_NOIPV4_TEST(_name) \
 	CUTE_TEST(_name) \
 	{ \

@@ -66,7 +66,7 @@ incfg_dname_set(struct incfg_addr * __restrict dname, const char * string)
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
-	incfg_assert_api(dname->type == INCFG_ADDR_DNAME_TYPE);
+	incfg_assert_api(dname->type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(!incfg_dname_check(string));
 
 	int err __unused;
@@ -84,7 +84,7 @@ incfg_dname_nset(struct incfg_addr * __restrict dname,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
-	incfg_assert_api(dname->type == INCFG_ADDR_DNAME_TYPE);
+	incfg_assert_api(dname->type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(!incfg_dname_ncheck(string, length));
 
 	int err __unused;
@@ -125,7 +125,7 @@ incfg_dname_unpack(struct incfg_addr *  __restrict dname,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
-	incfg_assert_api(dname->type == INCFG_ADDR_DNAME_TYPE);
+	incfg_assert_api(dname->type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(decoder);
 
 	ssize_t err;
@@ -147,7 +147,7 @@ incfg_dname_unpackn_check(struct incfg_addr *  __restrict dname,
 {
 	incfg_assert_api(incfg_logger);
 	incfg_assert_api(dname);
-	incfg_assert_api(dname->type == INCFG_ADDR_DNAME_TYPE);
+	incfg_assert_api(dname->type <= INCFG_ADDR_TYPE_NR);
 	incfg_assert_api(decoder);
 
 	char *  str;

@@ -5,9 +5,7 @@
  * Copyright (C) 2024 Grégor Boirie <gregor.boirie@free.fr>
  ******************************************************************************/
 
-#include "incfg/ip.h"
-#include "common.h"
-#include <dpack/codec.h>
+#include "ip.h"
 #include <dpack/scalar.h>
 
 static inline struct incfg_addr *
@@ -258,22 +256,18 @@ incfg_ip_addr_pack(const union incfg_ip_addr * __restrict addr,
 }
 
 int
-incfg_ip_addr_unpack(union incfg_ip_addr * __restrict addr,
-                     struct dpack_decoder *           decoder)
+incfg_ip_addr_decode(union incfg_ip_addr * __restrict  addr,
+                     enum incfg_addr_type              type,
+                     struct dpack_decoder *            decoder)
 {
-	incfg_assert_api(incfg_logger);
-	incfg_assert_api(addr);
-	incfg_assert_api(incfg_ip2addr(addr)->type <= INCFG_ADDR_TYPE_NR);
-	incfg_assert_api(decoder);
+	incfg_assert_intern(incfg_logger);
+	incfg_assert_intern(addr);
+	incfg_assert_intern(incfg_ip2addr(addr)->type <= INCFG_ADDR_TYPE_NR);
+	incfg_assert_intern(decoder);
 
-	int     err;
-	uint8_t type;
+	int err;
 
-	err = dpack_decode_uint8(decoder, &type);
-	if (err)
-		return err;
-
-	switch ((enum incfg_addr_type)type) {
+	switch (type) {
 #if defined(CONFIG_INCFG_IPV4)
 	case INCFG_ADDR_IPV4_TYPE:
 		err = incfg_ipv4_addr_unpack(&addr->ipv4, decoder);
@@ -297,6 +291,25 @@ incfg_ip_addr_unpack(union incfg_ip_addr * __restrict addr,
 	}
 
 	unreachable();
+}
+
+int
+incfg_ip_addr_unpack(union incfg_ip_addr * __restrict addr,
+                     struct dpack_decoder *           decoder)
+{
+	incfg_assert_api(incfg_logger);
+	incfg_assert_api(addr);
+	incfg_assert_api(incfg_ip2addr(addr)->type <= INCFG_ADDR_TYPE_NR);
+	incfg_assert_api(decoder);
+
+	int     err;
+	uint8_t type;
+
+	err = dpack_decode_uint8(decoder, &type);
+	if (err)
+		return err;
+
+	return incfg_ip_addr_decode(addr, (enum incfg_addr_type)type, decoder);
 }
 
 void
